@@ -6,6 +6,7 @@ import publishedCatalog from "@/data/catalog.published.json";
 import { ProductCard } from "@/components/ProductCard";
 import { PdfExport } from "@/components/PdfExport";
 import { sortCatalog } from "@/lib/catalog";
+import { fetchRepositoryJson } from "@/lib/github";
 import type { CatalogData } from "@/lib/types";
 
 const fallbackCatalog = sortCatalog(publishedCatalog as CatalogData);
@@ -17,10 +18,9 @@ export default function CatalogPage() {
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    const localPublished = localStorage.getItem("suvenir:published");
-    if (localPublished) {
-      setCatalog(sortCatalog(JSON.parse(localPublished) as CatalogData));
-    }
+    fetchRepositoryJson<CatalogData>("data/catalog.published.json", fallbackCatalog).then((data) => {
+      setCatalog(sortCatalog(data));
+    });
   }, []);
 
   const visibleProducts = useMemo(() => {

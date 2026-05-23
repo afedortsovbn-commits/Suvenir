@@ -5,11 +5,31 @@ export type GitHubConfig = {
   token: string;
 };
 
+export const repositoryConfig: Omit<GitHubConfig, "token"> = {
+  owner: "afedortsovbn-commits",
+  repo: "Suvenir",
+  branch: "main"
+};
+
 type GitHubFile = {
   path: string;
   content: string;
   message: string;
 };
+
+export function createGitHubConfig(token: string): GitHubConfig {
+  return { ...repositoryConfig, token };
+}
+
+export async function fetchRepositoryJson<T>(path: string, fallback: T): Promise<T> {
+  const response = await fetch(
+    `https://raw.githubusercontent.com/${repositoryConfig.owner}/${repositoryConfig.repo}/${repositoryConfig.branch}/${path}?v=${Date.now()}`,
+    { cache: "no-store" }
+  );
+
+  if (!response.ok) return fallback;
+  return (await response.json()) as T;
+}
 
 async function getFileSha(config: GitHubConfig, path: string) {
   const response = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}?ref=${config.branch}`, {

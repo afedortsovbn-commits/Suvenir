@@ -15,7 +15,7 @@ const pageHeight = 1123;
 const pagePadding = 46;
 const gap = 18;
 const cardWidth = 332;
-const cardHeight = 238;
+const cardHeight = 280;
 
 export function PdfExport({ catalog, products, disabled, onEmpty }: PdfExportProps) {
   async function downloadPdf() {
@@ -74,7 +74,7 @@ function buildPdfDom(catalog: CatalogData, products: Product[]) {
 
   const title = document.createElement("h1");
   title.textContent = "Каталог сувенирной продукции";
-  title.style.cssText = "margin:0 0 26px;font-size:30px;line-height:1.12;color:#25713d;font-weight:800;";
+  title.style.cssText = "position:absolute;left:46px;right:46px;top:46px;margin:0;font-size:30px;line-height:1.12;color:#25713d;font-weight:800;";
   page.appendChild(title);
   cursorY += 60;
 
@@ -138,17 +138,17 @@ function createCard(catalog: CatalogData, product: Product) {
   const img = document.createElement("img");
   img.src = product.image;
   img.alt = product.title;
-  img.style.cssText = "position:absolute;left:24px;right:24px;top:12px;width:284px;height:100px;object-fit:contain;";
+  img.style.cssText = "position:absolute;left:24px;right:24px;top:14px;width:284px;height:104px;object-fit:contain;";
   card.appendChild(img);
 
   const title = document.createElement("h3");
   title.textContent = product.title || "Новая позиция";
-  title.style.cssText = "position:absolute;left:18px;right:18px;top:118px;margin:0;font-size:18px;line-height:1.12;color:#153f25;font-weight:800;overflow-wrap:anywhere;";
+  title.style.cssText = "position:absolute;left:18px;right:18px;top:126px;margin:0;font-size:17px;line-height:1.2;color:#153f25;font-weight:800;overflow-wrap:anywhere;word-break:break-word;max-height:62px;overflow:hidden;";
   card.appendChild(title);
 
   const description = document.createElement("p");
   description.textContent = product.description || "";
-  description.style.cssText = "position:absolute;left:18px;right:18px;top:162px;margin:0;font-size:11px;line-height:1.35;color:#315541;max-height:45px;overflow:hidden;";
+  description.style.cssText = "position:absolute;left:18px;right:18px;top:194px;margin:0;font-size:11px;line-height:1.35;color:#315541;max-height:45px;overflow:hidden;word-break:break-word;";
   card.appendChild(description);
 
   const meta = document.createElement("div");

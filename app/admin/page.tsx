@@ -25,7 +25,7 @@ import usersJson from "@/data/users.json";
 import { ProductCard } from "@/components/ProductCard";
 import { cardSizeLabels, createEmptyProduct, hasUnpublishedChanges, sortCatalog, validateCatalog } from "@/lib/catalog";
 import { createUser, verifyPassword } from "@/lib/auth";
-import { commitJson, type GitHubConfig } from "@/lib/github";
+import { commitJson, createGitHubConfig, fetchRepositoryJson, repositoryConfig } from "@/lib/github";
 import type {
   BrandingMethod,
   CardBackgroundColor,
@@ -37,14 +37,6 @@ import type {
   Product,
   User
 } from "@/lib/types";
-
-const storageKeys = {
-  draft: "suvenir:draft",
-  published: "suvenir:published",
-  users: "suvenir:users",
-  session: "suvenir:session",
-  github: "suvenir:github"
-};
 
 const initialDraft = sortCatalog(draftJson as CatalogData);
 const initialPublished = sortCatalog(publishedJson as CatalogData);
@@ -71,25 +63,22 @@ export default function AdminPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [section, setSection] = useState<AdminSection>("products");
   const [toast, setToast] = useState("");
-  const [github, setGithub] = useState<GitHubConfig>({ owner: "", repo: "", branch: "main", token: "" });
+  const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
-    const localDraft = localStorage.getItem(storageKeys.draft);
-    const localPublished = localStorage.getItem(storageKeys.published);
-    const localUsers = localStorage.getItem(storageKeys.users);
-    const session = localStorage.getItem(storageKeys.session);
-    const localGithub = localStorage.getItem(storageKeys.github);
-    if (localDraft) setDraft(sortCatalog(JSON.parse(localDraft) as CatalogData));
-    if (localPublished) setPublished(sortCatalog(JSON.parse(localPublished) as CatalogData));
-    if (localUsers) {
-      const parsed = JSON.parse(localUsers) as User[];
-      setUsers(parsed);
-      if (session) setCurrentUser(parsed.find((user) => user.id === session) ?? null);
-    } else if (session) {
-      setCurrentUser(initialUsers.find((user) => user.id === session) ?? null);
-    }
-    if (localGithub) setGithub(JSON.parse(localGithub) as GitHubConfig);
+    Promise.all([
+      fetchRepositoryJson<CatalogData>("data/catalog.draft.json", initialDraft),
+      fetchRepositoryJson<CatalogData>("data/catalog.published.json", initialPublished),
+      fetchRepositoryJson<User[]>("data/users.json", initialUsers)
+    ])
+      .then(([remoteDraft, remotePublished, remoteUsers]) => {
+        setDraft(sortCatalog(remoteDraft));
+        setPublished(sortCatalog(remotePublished));
+        setUsers(remoteUsers);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const validationIssues = useMemo(() => validateCatalog(draft), [draft]);
@@ -98,55 +87,71 @@ export default function AdminPage() {
   function persistDraft(nextDraft: CatalogData) {
     const stamped = sortCatalog({ ...nextDraft, updatedAt: new Date().toISOString(), version: nextDraft.version + 1 });
     setDraft(stamped);
-    localStorage.setItem(storageKeys.draft, JSON.stringify(stamped));
   }
 
-  function persistUsers(nextUsers: User[]) {
-    setUsers(nextUsers);
-    localStorage.setItem(storageKeys.users, JSON.stringify(nextUsers));
+  async function persistUsers(nextUsers: User[]) {
+    if (!token.trim()) {
+      setToast("Введите GitHub token, чтобы сохранить пользователей в репозитории.");
+      return false;
+    }
+    try {
+      await commitJson(createGitHubConfig(token.trim()), "data/users.json", nextUsers, "Обновить пользователей каталога");
+      setUsers(nextUsers);
+      setToast("Пользователи сохранены в GitHub.");
+      return true;
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : "Не удалось сохранить пользователей в GitHub.");
+      return false;
+    }
   }
 
-  function saveDraft() {
-    localStorage.setItem(storageKeys.draft, JSON.stringify(draft));
-    setToast("Черновик сохранён в браузере.");
+  async function saveDraft() {
+    if (!token.trim()) {
+      setToast("Введите GitHub token, чтобы сохранить черновик в репозитории.");
+      return;
+    }
+    try {
+      await commitJson(createGitHubConfig(token.trim()), "data/catalog.draft.json", draft, "Обновить черновик каталога");
+      setToast("Черновик сохранён в GitHub.");
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : "Не удалось сохранить черновик в GitHub.");
+    }
   }
 
-  function publish() {
+  async function publish() {
     if (validationIssues.length) {
       setToast("Нельзя опубликовать каталог: исправьте подсвеченные позиции в разделе «Сувенирная продукция».");
       setSection("products");
       return;
     }
-    const nextPublished = sortCatalog({ ...draft, updatedAt: new Date().toISOString(), version: draft.version + 1 });
-    setPublished(nextPublished);
-    localStorage.setItem(storageKeys.published, JSON.stringify(nextPublished));
-    setToast("Каталог опубликован локально. Для GitHub нажмите «Сохранить в GitHub».");
+    if (!token.trim()) {
+      setToast("Введите GitHub token, чтобы опубликовать каталог в репозитории.");
+      return;
+    }
+    try {
+      const nextPublished = sortCatalog({ ...draft, updatedAt: new Date().toISOString(), version: draft.version + 1 });
+      await commitJson(createGitHubConfig(token.trim()), "data/catalog.draft.json", draft, "Обновить черновик каталога");
+      await commitJson(createGitHubConfig(token.trim()), "data/catalog.published.json", nextPublished, "Опубликовать каталог");
+      setPublished(nextPublished);
+      setToast("Каталог опубликован в GitHub. GitHub Pages обновится после сборки.");
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : "Не удалось опубликовать каталог в GitHub.");
+    }
   }
 
-  async function saveToGitHub() {
-    try {
-      if (!github.owner || !github.repo || !github.branch || !github.token) {
-        setToast("Заполните owner, repo, branch и token для GitHub.");
-        return;
-      }
-      localStorage.setItem(storageKeys.github, JSON.stringify(github));
-      await commitJson(github, "data/catalog.draft.json", draft, "Обновить черновик каталога");
-      await commitJson(github, "data/catalog.published.json", published, "Опубликовать каталог");
-      await commitJson(github, "data/users.json", users, "Обновить пользователей каталога");
-      setToast("JSON-файлы сохранены в GitHub. GitHub Pages обновится после сборки.");
-    } catch (error) {
-      setToast(error instanceof Error ? error.message : "Не удалось сохранить изменения в GitHub.");
-    }
+  if (loading) {
+    return <main className="flex min-h-screen items-center justify-center bg-[#f7f8f3] px-4 text-lg font-bold text-brand-900">Загружаем данные из GitHub...</main>;
   }
 
   if (!currentUser) {
     return (
       <LoginScreen
         users={users}
+        token={token}
+        onToken={setToken}
         onUsers={persistUsers}
         onLogin={(user) => {
           setCurrentUser(user);
-          localStorage.setItem(storageKeys.session, user.id);
         }}
       />
     );
@@ -175,7 +180,6 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    localStorage.removeItem(storageKeys.session);
                     setCurrentUser(null);
                   }}
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#42644d] hover:bg-brand-50"
@@ -238,6 +242,13 @@ export default function AdminPage() {
               ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
+              <input
+                value={token}
+                onChange={(event) => setToken(event.target.value)}
+                type="password"
+                placeholder="GitHub token для сохранения"
+                className="input min-w-[260px]"
+              />
               <button type="button" onClick={saveDraft} className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-2 font-semibold text-brand-700 hover:border-brand-500">
                 <Save size={18} />
                 Сохранить черновик
@@ -256,7 +267,7 @@ export default function AdminPage() {
           ) : section === "products" ? (
             <ProductsAdmin draft={draft} onDraft={persistDraft} issues={validationIssues} />
           ) : section === "github" ? (
-            <GitHubPanel github={github} onGithub={setGithub} onSaveGitHub={saveToGitHub} />
+            <GitHubPanel token={token} onToken={setToken} />
           ) : (
             <DirectoryPanel kind={section as DirectoryKind} draft={draft} onDraft={persistDraft} />
           )}
@@ -266,7 +277,19 @@ export default function AdminPage() {
   );
 }
 
-function LoginScreen({ users, onUsers, onLogin }: { users: User[]; onUsers: (users: User[]) => void; onLogin: (user: User) => void }) {
+function LoginScreen({
+  users,
+  token,
+  onToken,
+  onUsers,
+  onLogin
+}: {
+  users: User[];
+  token: string;
+  onToken: (token: string) => void;
+  onUsers: (users: User[]) => Promise<boolean>;
+  onLogin: (user: User) => void;
+}) {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -279,9 +302,12 @@ function LoginScreen({ users, onUsers, onLogin }: { users: User[]; onUsers: (use
       return;
     }
     if (isFirstUser) {
+      if (!token.trim()) {
+        setMessage("Введите GitHub token, чтобы создать первого owner в репозитории.");
+        return;
+      }
       const owner = await createUser(login.trim(), password, "owner");
-      onUsers([owner]);
-      onLogin(owner);
+      if (await onUsers([owner])) onLogin(owner);
       return;
     }
     const user = users.find((item) => item.login.toLowerCase() === login.trim().toLowerCase());
@@ -300,8 +326,18 @@ function LoginScreen({ users, onUsers, onLogin }: { users: User[]; onUsers: (use
         </div>
         <h1 className="text-3xl font-bold text-brand-900">{isFirstUser ? "Создание owner" : "Вход в панель управления"}</h1>
         <p className="mt-3 text-sm leading-6 text-[#42644d]">
-          {isFirstUser ? "Первый зарегистрированный пользователь станет главным администратором." : "Введите логин и пароль сотрудника."}
+          {isFirstUser ? "Первый зарегистрированный пользователь станет главным администратором и будет сохранён в GitHub." : "Введите логин и пароль сотрудника."}
         </p>
+        <label className="mt-6 block text-sm font-bold">
+          GitHub token {isFirstUser ? "*" : ""}
+          <input
+            value={token}
+            onChange={(event) => onToken(event.target.value)}
+            type="password"
+            className="mt-2 w-full rounded-lg border border-brand-100 px-4 py-3 outline-none focus:border-brand-500"
+            placeholder="Token с правом Contents: Read and write"
+          />
+        </label>
         <label className="mt-6 block text-sm font-bold">
           Логин *
           <input value={login} onChange={(event) => setLogin(event.target.value)} className="mt-2 w-full rounded-lg border border-brand-100 px-4 py-3 outline-none focus:border-brand-500" />
@@ -633,31 +669,26 @@ function DirectoryPanel({ kind, draft, onDraft }: { kind: DirectoryKind; draft: 
   );
 }
 
-function GitHubPanel({ github, onGithub, onSaveGitHub }: { github: GitHubConfig; onGithub: (config: GitHubConfig) => void; onSaveGitHub: () => void }) {
+function GitHubPanel({ token, onToken }: { token: string; onToken: (token: string) => void }) {
   return (
     <section className="max-w-3xl rounded-lg bg-white p-5 shadow-soft">
-      <h2 className="text-2xl font-bold">GitHub storage</h2>
-      <p className="mt-2 text-sm leading-6 text-[#42644d]">Token хранится только в localStorage браузера и нужен для коммитов JSON в репозиторий.</p>
-      <div className="mt-4 grid gap-3">
-        {(["owner", "repo", "branch", "token"] as Array<keyof GitHubConfig>).map((field) => (
-          <input
-            key={field}
-            value={github[field]}
-            type={field === "token" ? "password" : "text"}
-            placeholder={field === "owner" ? "Владелец репозитория" : field === "repo" ? "Репозиторий" : field === "branch" ? "Ветка" : "GitHub token"}
-            onChange={(event) => onGithub({ ...github, [field]: event.target.value })}
-            className="input"
-          />
-        ))}
-        <button type="button" onClick={onSaveGitHub} className="rounded-full bg-brand-700 px-4 py-3 font-bold text-white hover:bg-brand-900">
-          Сохранить в GitHub
-        </button>
-      </div>
+      <h2 className="text-2xl font-bold">GitHub</h2>
+      <p className="mt-2 text-sm leading-6 text-[#42644d]">
+        Данные читаются и сохраняются в репозитории {repositoryConfig.owner}/{repositoryConfig.repo}, ветка {repositoryConfig.branch}.
+        Token нужен только для записи и хранится в памяти открытой страницы.
+      </p>
+      <input
+        value={token}
+        onChange={(event) => onToken(event.target.value)}
+        type="password"
+        placeholder="GitHub token с правом Contents: Read and write"
+        className="input mt-4"
+      />
     </section>
   );
 }
 
-function AccessAdmin({ users, currentUser, onUsers }: { users: User[]; currentUser: User; onUsers: (users: User[]) => void }) {
+function AccessAdmin({ users, currentUser, onUsers }: { users: User[]; currentUser: User; onUsers: (users: User[]) => Promise<boolean> }) {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -674,10 +705,11 @@ function AccessAdmin({ users, currentUser, onUsers }: { users: User[]; currentUs
       return;
     }
     const user = await createUser(login.trim(), password, "editor");
-    onUsers([...users, user]);
-    setLogin("");
-    setPassword("");
-    setMessage("Сотрудник создан.");
+    if (await onUsers([...users, user])) {
+      setLogin("");
+      setPassword("");
+      setMessage("Сотрудник создан и сохранён в GitHub.");
+    }
   }
 
   return (
