@@ -4,6 +4,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import type { CatalogData, Product } from "@/lib/types";
 import { cardSizeGridClass } from "@/lib/catalog";
+import { publicAsset } from "@/lib/paths";
 
 type ProductCardProps = {
   product: Product;
@@ -45,7 +46,7 @@ export function ProductCard({ product, catalog, selectable, selected, onToggle, 
       <div className="relative z-0 mb-2 flex min-h-[120px] flex-1 items-center justify-center">
         {product.image ? (
           <Image
-            src={product.image}
+            src={publicAsset(product.image)}
             alt={product.title || "Товар"}
             width={720}
             height={720}

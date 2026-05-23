@@ -2,6 +2,7 @@
 
 import { Download } from "lucide-react";
 import type { CatalogData, Product } from "@/lib/types";
+import { publicAsset } from "@/lib/paths";
 
 type PdfExportProps = {
   catalog: CatalogData;
@@ -136,7 +137,7 @@ function createCard(catalog: CatalogData, product: Product) {
   card.style.cssText = `position:absolute;width:${cardWidth}px;height:${cardHeight}px;border-radius:12px;background:${background};padding:18px;box-shadow:0 14px 34px rgba(38,88,55,.12);overflow:hidden;`;
 
   const img = document.createElement("img");
-  img.src = product.image;
+  img.src = publicAsset(product.image);
   img.alt = product.title;
   img.style.cssText = "position:absolute;left:24px;right:24px;top:14px;width:284px;height:104px;object-fit:contain;";
   card.appendChild(img);
