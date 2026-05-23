@@ -6,6 +6,7 @@ declare module "lucide-react" {
   };
 
   export const CheckSquare: FC<IconProps>;
+  export const ChevronDown: FC<IconProps>;
   export const Download: FC<IconProps>;
   export const Filter: FC<IconProps>;
   export const GripVertical: FC<IconProps>;

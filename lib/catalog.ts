@@ -38,6 +38,9 @@ export function sortCatalog(data: CatalogData) {
   return {
     ...data,
     categories: [...data.categories].sort((a, b) => a.order - b.order),
+    clothingSizes: [...data.clothingSizes].sort((a, b) => a.order - b.order),
+    materials: [...data.materials].sort((a, b) => a.order - b.order),
+    brandingMethods: [...(data.brandingMethods ?? [])].sort((a, b) => a.order - b.order),
     products: [...data.products].sort((a, b) => {
       if (a.sectionId === b.sectionId) return a.order - b.order;
       const categoryA = data.categories.find((item) => item.id === a.sectionId)?.order ?? 0;
@@ -92,6 +95,7 @@ export function createEmptyProduct(sectionId: string, order: number, backgroundC
     corporateColorIds: [],
     clothingSizeIds: [],
     materialIds: [],
+    brandingMethodIds: [],
     cardSize: "medium-square",
     backgroundColorId
   };

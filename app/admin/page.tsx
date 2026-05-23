@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  ChevronDown,
   GripVertical,
   ImagePlus,
   KeyRound,
@@ -12,7 +13,8 @@ import {
   Shield,
   Trash2,
   Upload,
-  Users
+  Users,
+  X
 } from "lucide-react";
 import { DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -25,6 +27,7 @@ import { cardSizeLabels, createEmptyProduct, hasUnpublishedChanges, sortCatalog,
 import { createUser, verifyPassword } from "@/lib/auth";
 import { commitJson, type GitHubConfig } from "@/lib/github";
 import type {
+  BrandingMethod,
   CardBackgroundColor,
   CatalogData,
   Category,
@@ -43,22 +46,33 @@ const storageKeys = {
   github: "suvenir:github"
 };
 
-const initialDraft = draftJson as CatalogData;
-const initialPublished = publishedJson as CatalogData;
+const initialDraft = sortCatalog(draftJson as CatalogData);
+const initialPublished = sortCatalog(publishedJson as CatalogData);
 const initialUsers = usersJson as User[];
 
-type AdminSection = "catalog" | "access";
-type DirectoryKind = "categories" | "corporateColors" | "clothingSizes" | "materials" | "cardBackgroundColors";
+type AdminSection = "access" | "products" | "categories" | "corporateColors" | "clothingSizes" | "materials" | "brandingMethods" | "cardBackgroundColors" | "github";
+type DirectoryKind = Exclude<AdminSection, "access" | "products" | "github">;
+
+const catalogSections: Array<{ id: AdminSection; label: string }> = [
+  { id: "products", label: "Сувенирная продукция" },
+  { id: "categories", label: "Разделы каталога" },
+  { id: "corporateColors", label: "Корпоративные цвета" },
+  { id: "clothingSizes", label: "Размеры одежды" },
+  { id: "materials", label: "Материалы" },
+  { id: "brandingMethods", label: "Способы брендирования" },
+  { id: "cardBackgroundColors", label: "Фоны карточек" },
+  { id: "github", label: "GitHub storage" }
+];
 
 export default function AdminPage() {
-  const [draft, setDraft] = useState<CatalogData>(sortCatalog(initialDraft));
-  const [published, setPublished] = useState<CatalogData>(sortCatalog(initialPublished));
+  const [draft, setDraft] = useState<CatalogData>(initialDraft);
+  const [published, setPublished] = useState<CatalogData>(initialPublished);
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [section, setSection] = useState<AdminSection>("catalog");
-  const [selectedProductId, setSelectedProductId] = useState(initialDraft.products[0]?.id ?? "");
+  const [section, setSection] = useState<AdminSection>("products");
   const [toast, setToast] = useState("");
   const [github, setGithub] = useState<GitHubConfig>({ owner: "", repo: "", branch: "main", token: "" });
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const localDraft = localStorage.getItem(storageKeys.draft);
@@ -79,7 +93,6 @@ export default function AdminPage() {
   }, []);
 
   const validationIssues = useMemo(() => validateCatalog(draft), [draft]);
-  const selectedProduct = draft.products.find((product) => product.id === selectedProductId) ?? draft.products[0];
   const unpublished = hasUnpublishedChanges(draft, published);
 
   function persistDraft(nextDraft: CatalogData) {
@@ -98,9 +111,10 @@ export default function AdminPage() {
     setToast("Черновик сохранён в браузере.");
   }
 
-  async function publish() {
+  function publish() {
     if (validationIssues.length) {
-      setToast("Нельзя опубликовать каталог: исправьте ошибки в товарах.");
+      setToast("Нельзя опубликовать каталог: исправьте подсвеченные позиции в разделе «Сувенирная продукция».");
+      setSection("products");
       return;
     }
     const nextPublished = sortCatalog({ ...draft, updatedAt: new Date().toISOString(), version: draft.version + 1 });
@@ -118,7 +132,7 @@ export default function AdminPage() {
       localStorage.setItem(storageKeys.github, JSON.stringify(github));
       await commitJson(github, "data/catalog.draft.json", draft, "Обновить черновик каталога");
       await commitJson(github, "data/catalog.published.json", published, "Опубликовать каталог");
-      await commitJson(github, "data/users.json", users, "Обновить пользователей админки");
+      await commitJson(github, "data/users.json", users, "Обновить пользователей каталога");
       setToast("JSON-файлы сохранены в GitHub. GitHub Pages обновится после сборки.");
     } catch (error) {
       setToast(error instanceof Error ? error.message : "Не удалось сохранить изменения в GitHub.");
@@ -126,29 +140,54 @@ export default function AdminPage() {
   }
 
   if (!currentUser) {
-    return <LoginScreen users={users} onUsers={persistUsers} onLogin={(user) => {
-      setCurrentUser(user);
-      localStorage.setItem(storageKeys.session, user.id);
-    }} />;
+    return (
+      <LoginScreen
+        users={users}
+        onUsers={persistUsers}
+        onLogin={(user) => {
+          setCurrentUser(user);
+          localStorage.setItem(storageKeys.session, user.id);
+        }}
+      />
+    );
   }
 
   return (
     <main className="min-h-screen bg-[#f7f8f3] text-brand-900">
-      <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
+      <div className="grid min-h-screen lg:grid-cols-[300px_1fr]">
         <aside className="border-r border-brand-100 bg-white p-5">
-          <div className="mb-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">Админка</p>
-            <h1 className="mt-2 text-2xl font-bold">Сувенирный каталог</h1>
-          </div>
-          <nav className="space-y-2">
+          <h1 className="mb-5 text-2xl font-bold">Сувенирный каталог</h1>
+
+          <div className="relative mb-4">
             <button
               type="button"
-              onClick={() => setSection("catalog")}
-              className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-semibold ${section === "catalog" ? "bg-brand-700 text-white" : "hover:bg-brand-50"}`}
+              onClick={() => setProfileOpen((value) => !value)}
+              className="flex w-full items-center justify-between rounded-lg bg-brand-50 px-4 py-3 text-left transition hover:bg-[#e8f4ea]"
             >
-              <LayoutGrid size={19} />
-              Настройка каталога
+              <span>
+                <span className="block font-bold">{currentUser.login}</span>
+                <span className="block text-sm text-[#42644d]">Роль: {currentUser.role === "owner" ? "owner" : "editor"}</span>
+              </span>
+              <ChevronDown size={18} className={profileOpen ? "rotate-180 transition" : "transition"} />
             </button>
+            {profileOpen ? (
+              <div className="absolute left-0 right-0 top-full z-20 mt-2 rounded-lg border border-brand-100 bg-white p-2 shadow-soft">
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.removeItem(storageKeys.session);
+                    setCurrentUser(null);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#42644d] hover:bg-brand-50"
+                >
+                  <LogOut size={17} />
+                  Выйти
+                </button>
+              </div>
+            ) : null}
+          </div>
+
+          <nav className="space-y-2">
             {currentUser.role === "owner" ? (
               <button
                 type="button"
@@ -159,22 +198,31 @@ export default function AdminPage() {
                 Управление доступом
               </button>
             ) : null}
+
+            <button
+              type="button"
+              onClick={() => setSection("products")}
+              className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-semibold ${section !== "access" ? "bg-brand-700 text-white" : "hover:bg-brand-50"}`}
+            >
+              <LayoutGrid size={19} />
+              Настройка каталога
+            </button>
+
+            <div className="space-y-1 pl-3">
+              {catalogSections.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setSection(item.id)}
+                  className={`w-full rounded-lg px-4 py-2 text-left text-sm font-semibold ${
+                    section === item.id ? "bg-brand-50 text-brand-700" : "text-[#42644d] hover:bg-[#f7f8f3]"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </nav>
-          <div className="mt-8 rounded-lg bg-brand-50 p-4 text-sm leading-6">
-            <div className="font-bold">{currentUser.login}</div>
-            <div className="text-[#42644d]">Роль: {currentUser.role === "owner" ? "owner" : "editor"}</div>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              localStorage.removeItem(storageKeys.session);
-              setCurrentUser(null);
-            }}
-            className="mt-4 flex w-full items-center gap-2 rounded-lg border border-brand-100 px-4 py-3 font-semibold text-[#42644d] hover:border-brand-500"
-          >
-            <LogOut size={18} />
-            Выйти
-          </button>
         </aside>
 
         <section className="min-w-0 p-4 sm:p-6 lg:p-8">
@@ -183,7 +231,11 @@ export default function AdminPage() {
               <div className={`inline-flex rounded-full px-3 py-1 text-sm font-bold ${unpublished ? "bg-amber-100 text-amber-800" : "bg-brand-50 text-brand-700"}`}>
                 {unpublished ? "Есть неопубликованные изменения" : "Все изменения опубликованы"}
               </div>
-              {validationIssues.length ? <p className="mt-2 text-sm font-semibold text-red-700">Ошибок в каталоге: {validationIssues.length}</p> : null}
+              {validationIssues.length ? (
+                <p className="mt-2 text-sm font-semibold text-red-700">
+                  Есть проблемы в позициях: {validationIssues.length}. Откройте подсвеченные строки, чтобы увидеть пояснения.
+                </p>
+              ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={saveDraft} className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-2 font-semibold text-brand-700 hover:border-brand-500">
@@ -199,19 +251,14 @@ export default function AdminPage() {
 
           {toast ? <div className="mb-5 rounded-lg border border-brand-100 bg-white px-4 py-3 text-sm font-semibold text-brand-700">{toast}</div> : null}
 
-          {section === "catalog" ? (
-            <CatalogAdmin
-              draft={draft}
-              selectedProduct={selectedProduct}
-              onDraft={persistDraft}
-              onSelectProduct={setSelectedProductId}
-              github={github}
-              onGithub={setGithub}
-              onSaveGitHub={saveToGitHub}
-              issues={validationIssues}
-            />
-          ) : (
+          {section === "access" && currentUser.role === "owner" ? (
             <AccessAdmin users={users} currentUser={currentUser} onUsers={persistUsers} />
+          ) : section === "products" ? (
+            <ProductsAdmin draft={draft} onDraft={persistDraft} issues={validationIssues} />
+          ) : section === "github" ? (
+            <GitHubPanel github={github} onGithub={setGithub} onSaveGitHub={saveToGitHub} />
+          ) : (
+            <DirectoryPanel kind={section as DirectoryKind} draft={draft} onDraft={persistDraft} />
           )}
         </section>
       </div>
@@ -251,7 +298,7 @@ function LoginScreen({ users, onUsers, onLogin }: { users: User[]; onUsers: (use
         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-brand-700">
           <KeyRound />
         </div>
-        <h1 className="text-3xl font-bold text-brand-900">{isFirstUser ? "Создание owner" : "Вход в админку"}</h1>
+        <h1 className="text-3xl font-bold text-brand-900">{isFirstUser ? "Создание owner" : "Вход в панель управления"}</h1>
         <p className="mt-3 text-sm leading-6 text-[#42644d]">
           {isFirstUser ? "Первый зарегистрированный пользователь станет главным администратором." : "Введите логин и пароль сотрудника."}
         </p>
@@ -272,36 +319,29 @@ function LoginScreen({ users, onUsers, onLogin }: { users: User[]; onUsers: (use
   );
 }
 
-function CatalogAdmin(props: {
-  draft: CatalogData;
-  selectedProduct?: Product;
-  onDraft: (draft: CatalogData) => void;
-  onSelectProduct: (id: string) => void;
-  github: GitHubConfig;
-  onGithub: (config: GitHubConfig) => void;
-  onSaveGitHub: () => void;
-  issues: ReturnType<typeof validateCatalog>;
-}) {
-  const { draft, selectedProduct, onDraft, onSelectProduct, github, onGithub, onSaveGitHub, issues } = props;
+function ProductsAdmin({ draft, onDraft, issues }: { draft: CatalogData; onDraft: (draft: CatalogData) => void; issues: ReturnType<typeof validateCatalog> }) {
   const sensors = useSensors(useSensor(PointerSensor));
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  function updateProduct(product: Product) {
-    onDraft({ ...draft, products: draft.products.map((item) => (item.id === product.id ? product : item)) });
+  function productIssues(productId: string) {
+    return issues.filter((issue) => issue.productId === productId);
   }
 
   function addProduct() {
-    const firstCategory = draft.categories[0]?.id ?? "";
-    const firstBackground = draft.cardBackgroundColors[0]?.id ?? "";
-    const product = createEmptyProduct(firstCategory, draft.products.length + 1, firstBackground);
-    onDraft({ ...draft, products: [...draft.products, product] });
-    onSelectProduct(product.id);
+    const product = createEmptyProduct(draft.categories[0]?.id ?? "", draft.products.length + 1, draft.cardBackgroundColors[0]?.id ?? "");
+    setEditingProduct(product);
+  }
+
+  function saveProduct(product: Product) {
+    const exists = draft.products.some((item) => item.id === product.id);
+    const products = exists ? draft.products.map((item) => (item.id === product.id ? product : item)) : [...draft.products, product];
+    onDraft({ ...draft, products });
+    setEditingProduct(null);
   }
 
   function deleteProduct(id: string) {
-    if (!confirm("Удалить товар из черновика?")) return;
-    const nextProducts = draft.products.filter((product) => product.id !== id);
-    onDraft({ ...draft, products: nextProducts });
-    onSelectProduct(nextProducts[0]?.id ?? "");
+    if (!confirm("Удалить позицию сувенирной продукции?")) return;
+    onDraft({ ...draft, products: draft.products.filter((product) => product.id !== id) });
   }
 
   function onProductsDragEnd(event: DragEndEvent) {
@@ -313,62 +353,120 @@ function CatalogAdmin(props: {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
-      <div className="space-y-5">
-        <section className="rounded-lg bg-white p-4 shadow-soft">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-bold">Товары</h2>
-            <button type="button" onClick={addProduct} className="inline-flex items-center gap-2 rounded-full bg-brand-700 px-4 py-2 text-sm font-semibold text-white">
-              <Plus size={17} />
-              Добавить
-            </button>
+    <section className="rounded-lg bg-white p-5 shadow-soft">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Сувенирная продукция</h2>
+          <p className="mt-1 text-sm text-[#42644d]">Перетаскивайте позиции, чтобы изменить порядок в каталоге.</p>
+        </div>
+        <button type="button" onClick={addProduct} className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-700 px-4 py-2 text-sm font-semibold text-white">
+          <Plus size={17} />
+          Добавить позицию
+        </button>
+      </div>
+
+      <DndContext sensors={sensors} onDragEnd={onProductsDragEnd}>
+        <SortableContext items={draft.products.map((product) => product.id)} strategy={verticalListSortingStrategy}>
+          <div className="space-y-2">
+            {draft.products.map((product) => {
+              const currentIssues = productIssues(product.id);
+              return (
+                <SortableRow key={product.id} id={product.id} danger={currentIssues.length > 0}>
+                  <button type="button" onClick={() => setEditingProduct(product)} className="min-w-0 flex-1 rounded-lg px-3 py-2 text-left hover:bg-white/70">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-bold">№ {product.sku || "—"}</span>
+                      <span className="truncate font-semibold">{product.title || "Новая позиция"}</span>
+                    </div>
+                    <div className="mt-1 text-xs text-[#42644d]">{draft.categories.find((category) => category.id === product.sectionId)?.title || "Раздел не выбран"}</div>
+                    {currentIssues.length ? (
+                      <div className="mt-2 text-xs font-semibold text-red-700">{currentIssues.map((issue) => issue.message).join("; ")}</div>
+                    ) : null}
+                  </button>
+                  <button type="button" onClick={() => deleteProduct(product.id)} className="rounded-full p-2 text-red-700 hover:bg-red-50" aria-label="Удалить позицию">
+                    <Trash2 size={17} />
+                  </button>
+                </SortableRow>
+              );
+            })}
           </div>
-          <DndContext sensors={sensors} onDragEnd={onProductsDragEnd}>
-            <SortableContext items={draft.products.map((product) => product.id)} strategy={verticalListSortingStrategy}>
-              <div className="max-h-[520px] space-y-2 overflow-auto pr-1">
-                {draft.products.map((product) => (
-                  <SortableRow key={product.id} id={product.id}>
-                    <button
-                      type="button"
-                      onClick={() => onSelectProduct(product.id)}
-                      className={`min-w-0 flex-1 rounded-lg px-3 py-2 text-left ${selectedProduct?.id === product.id ? "bg-brand-50 text-brand-900" : "hover:bg-[#f7f8f3]"}`}
-                    >
-                      <div className="truncate font-bold">№ {product.sku || "—"} · {product.title || "Новый товар"}</div>
-                      <div className="truncate text-xs text-[#42644d]">{draft.categories.find((category) => category.id === product.sectionId)?.title}</div>
-                    </button>
-                    <button type="button" onClick={() => deleteProduct(product.id)} className="rounded-full p-2 text-red-700 hover:bg-red-50" aria-label="Удалить товар">
-                      <Trash2 size={17} />
-                    </button>
-                  </SortableRow>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </section>
+        </SortableContext>
+      </DndContext>
 
-        <DirectoryPanel draft={draft} onDraft={onDraft} />
-        <GitHubPanel github={github} onGithub={onGithub} onSaveGitHub={onSaveGitHub} />
-      </div>
+      {editingProduct ? (
+        <ProductModal
+          product={editingProduct}
+          draft={draft}
+          issues={productIssues(editingProduct.id)}
+          onClose={() => setEditingProduct(null)}
+          onProduct={setEditingProduct}
+          onSave={saveProduct}
+        />
+      ) : null}
+    </section>
+  );
+}
 
-      <div className="grid gap-6 2xl:grid-cols-[1fr_380px]">
-        {selectedProduct ? (
-          <ProductForm product={selectedProduct} draft={draft} onProduct={updateProduct} issues={issues.filter((issue) => issue.productId === selectedProduct.id)} />
-        ) : (
-          <div className="rounded-lg bg-white p-6 shadow-soft">Добавьте товар, чтобы открыть форму.</div>
-        )}
-        <section className="rounded-lg bg-white p-4 shadow-soft">
-          <h2 className="mb-4 text-xl font-bold">Предпросмотр</h2>
-          {selectedProduct ? <ProductCard product={selectedProduct} catalog={draft} compact /> : null}
-        </section>
-      </div>
+function ProductModal({
+  product,
+  draft,
+  issues,
+  onClose,
+  onProduct,
+  onSave
+}: {
+  product: Product;
+  draft: CatalogData;
+  issues: ReturnType<typeof validateCatalog>;
+  onClose: () => void;
+  onProduct: (product: Product) => void;
+  onSave: (product: Product) => void;
+}) {
+  const [tab, setTab] = useState<"data" | "preview">("data");
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-auto bg-black/35 p-4">
+      <section className="my-6 w-full max-w-6xl rounded-lg bg-white shadow-soft">
+        <header className="flex items-center justify-between gap-4 border-b border-brand-100 p-5">
+          <div>
+            <h2 className="text-2xl font-bold">{product.title || "Новая позиция"}</h2>
+            {issues.length ? <p className="mt-1 text-sm font-semibold text-red-700">Есть ошибки: {issues.map((issue) => issue.message).join("; ")}</p> : null}
+          </div>
+          <button type="button" onClick={onClose} className="rounded-full p-2 text-[#42644d] hover:bg-brand-50" aria-label="Закрыть">
+            <X size={22} />
+          </button>
+        </header>
+        <div className="flex border-b border-brand-100 px-5">
+          <button type="button" onClick={() => setTab("data")} className={`px-4 py-3 font-bold ${tab === "data" ? "border-b-2 border-brand-700 text-brand-700" : "text-[#42644d]"}`}>
+            Данные
+          </button>
+          <button type="button" onClick={() => setTab("preview")} className={`px-4 py-3 font-bold ${tab === "preview" ? "border-b-2 border-brand-700 text-brand-700" : "text-[#42644d]"}`}>
+            Превью
+          </button>
+        </div>
+        <div className="p-5">
+          {tab === "data" ? <ProductForm product={product} draft={draft} onProduct={onProduct} issues={issues} /> : <ProductCard product={product} catalog={draft} compact />}
+        </div>
+        <footer className="flex justify-end gap-2 border-t border-brand-100 p-5">
+          <button type="button" onClick={onClose} className="rounded-full border border-brand-100 px-5 py-2 font-semibold text-[#42644d] hover:border-brand-500">
+            Отмена
+          </button>
+          <button type="button" onClick={() => onSave(product)} className="rounded-full bg-brand-700 px-5 py-2 font-bold text-white hover:bg-brand-900">
+            Сохранить позицию
+          </button>
+        </footer>
+      </section>
     </div>
   );
 }
 
-function SortableRow({ id, children }: { id: string; children: React.ReactNode }) {
+function SortableRow({ id, danger, children }: { id: string; danger?: boolean; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   return (
-    <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }} className="flex items-center gap-2 rounded-lg border border-brand-100 bg-white p-1">
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`flex items-center gap-2 rounded-lg border p-1 ${danger ? "border-red-200 bg-red-50" : "border-brand-100 bg-white"}`}
+    >
       <button type="button" className="cursor-grab rounded p-2 text-[#42644d]" {...attributes} {...listeners} aria-label="Перетащить">
         <GripVertical size={17} />
       </button>
@@ -397,57 +495,52 @@ function ProductForm({ product, draft, onProduct, issues }: { product: Product; 
   }
 
   return (
-    <section className="rounded-lg bg-white p-5 shadow-soft">
-      <h2 className="text-xl font-bold">Карточка товара</h2>
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <Field label="Раздел *" error={issueText.get("sectionId")}>
-          <select value={product.sectionId} onChange={(event) => set("sectionId", event.target.value)} className="input">
-            {draft.categories.map((category) => <option key={category.id} value={category.id}>{category.title}</option>)}
-          </select>
-        </Field>
-        <Field label="Номер позиции *" error={issueText.get("sku")}>
-          <input value={product.sku} onChange={(event) => set("sku", event.target.value)} className="input" />
-        </Field>
-        <Field label="Наименование *" error={issueText.get("title")}>
-          <input value={product.title} onChange={(event) => set("title", event.target.value)} className="input" />
-        </Field>
-        <Field label="Размер блока *" error={issueText.get("cardSize")}>
-          <select value={product.cardSize} onChange={(event) => set("cardSize", event.target.value as Product["cardSize"])} className="input">
-            {Object.entries(cardSizeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-          </select>
-        </Field>
-        <Field label="Описание *" error={issueText.get("description")} wide>
-          <textarea value={product.description} onChange={(event) => set("description", event.target.value)} className="input min-h-28" />
-        </Field>
-        <Field label="Фоновый цвет карточки *" error={issueText.get("backgroundColorId")}>
-          <select value={product.backgroundColorId} onChange={(event) => set("backgroundColorId", event.target.value)} className="input">
-            {draft.cardBackgroundColors.map((color) => <option key={color.id} value={color.id}>{color.title}</option>)}
-          </select>
-        </Field>
-        <Field label="Картинка *" error={issueText.get("image")}>
-          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-100 px-4 py-3 text-sm font-semibold text-brand-700 hover:border-brand-500">
-            <ImagePlus size={18} />
-            Загрузить PNG
-            <input type="file" accept="image/png" onChange={(event) => uploadImage(event.target.files?.[0])} className="hidden" />
-          </label>
-          <p className="mt-2 text-xs leading-5 text-[#42644d]">
-            Формат PNG, прозрачный фон, минимум 1200 px по большей стороне, желательно до 2 МБ, объект вырезан без фона и с полями.
-          </p>
-        </Field>
-        <Field label="Физический размер">
-          <input value={product.physicalSize ?? ""} onChange={(event) => set("physicalSize", event.target.value)} className="input" />
-        </Field>
-        <Field label="Вид нанесения">
-          <input value={product.printType ?? ""} onChange={(event) => set("printType", event.target.value)} className="input" />
-        </Field>
-        <Field label="Объём">
-          <input value={product.volume ?? ""} onChange={(event) => set("volume", event.target.value)} className="input" />
-        </Field>
-        <CheckboxGroup title="Корпоративные цвета" values={draft.corporateColors} selected={product.corporateColorIds ?? []} onSelected={(ids) => set("corporateColorIds", ids)} />
-        <CheckboxGroup title="Размер одежды" values={draft.clothingSizes} selected={product.clothingSizeIds ?? []} onSelected={(ids) => set("clothingSizeIds", ids)} />
-        <CheckboxGroup title="Материалы" values={draft.materials} selected={product.materialIds ?? []} onSelected={(ids) => set("materialIds", ids)} />
-      </div>
-    </section>
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Field label="Раздел *" error={issueText.get("sectionId")}>
+        <select value={product.sectionId} onChange={(event) => set("sectionId", event.target.value)} className="input">
+          {draft.categories.map((category) => <option key={category.id} value={category.id}>{category.title}</option>)}
+        </select>
+      </Field>
+      <Field label="Номер позиции *" error={issueText.get("sku")}>
+        <input value={product.sku} onChange={(event) => set("sku", event.target.value)} className="input" />
+      </Field>
+      <Field label="Наименование *" error={issueText.get("title")}>
+        <input value={product.title} onChange={(event) => set("title", event.target.value)} className="input" />
+      </Field>
+      <Field label="Размер блока *" error={issueText.get("cardSize")}>
+        <select value={product.cardSize} onChange={(event) => set("cardSize", event.target.value as Product["cardSize"])} className="input">
+          {Object.entries(cardSizeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+        </select>
+      </Field>
+      <Field label="Описание *" error={issueText.get("description")} wide>
+        <textarea value={product.description} onChange={(event) => set("description", event.target.value)} className="input min-h-28" />
+      </Field>
+      <Field label="Фоновый цвет карточки *" error={issueText.get("backgroundColorId")}>
+        <select value={product.backgroundColorId} onChange={(event) => set("backgroundColorId", event.target.value)} className="input">
+          {draft.cardBackgroundColors.map((color) => <option key={color.id} value={color.id}>{color.title}</option>)}
+        </select>
+      </Field>
+      <Field label="Картинка *" error={issueText.get("image")}>
+        <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-brand-100 px-4 py-3 text-sm font-semibold text-brand-700 hover:border-brand-500">
+          <ImagePlus size={18} />
+          Загрузить PNG
+          <input type="file" accept="image/png" onChange={(event) => uploadImage(event.target.files?.[0])} className="hidden" />
+        </label>
+        <p className="mt-2 text-xs leading-5 text-[#42644d]">
+          Формат PNG, прозрачный фон, минимум 1200 px по большей стороне, желательно до 2 МБ, объект вырезан без фона и с полями.
+        </p>
+      </Field>
+      <Field label="Физический размер">
+        <input value={product.physicalSize ?? ""} onChange={(event) => set("physicalSize", event.target.value)} className="input" />
+      </Field>
+      <Field label="Объём">
+        <input value={product.volume ?? ""} onChange={(event) => set("volume", event.target.value)} className="input" />
+      </Field>
+      <CheckboxGroup title="Корпоративные цвета" values={draft.corporateColors} selected={product.corporateColorIds ?? []} onSelected={(ids) => set("corporateColorIds", ids)} />
+      <CheckboxGroup title="Размер одежды" values={draft.clothingSizes} selected={product.clothingSizeIds ?? []} onSelected={(ids) => set("clothingSizeIds", ids)} />
+      <CheckboxGroup title="Материалы" values={draft.materials} selected={product.materialIds ?? []} onSelected={(ids) => set("materialIds", ids)} />
+      <CheckboxGroup title="Способ брендирования" values={draft.brandingMethods ?? []} selected={product.brandingMethodIds ?? []} onSelected={(ids) => set("brandingMethodIds", ids)} />
+    </div>
   );
 }
 
@@ -482,17 +575,17 @@ function CheckboxGroup({ title, values, selected, onSelected }: { title: string;
   );
 }
 
-function DirectoryPanel({ draft, onDraft }: { draft: CatalogData; onDraft: (draft: CatalogData) => void }) {
-  const [kind, setKind] = useState<DirectoryKind>("categories");
+function DirectoryPanel({ kind, draft, onDraft }: { kind: DirectoryKind; draft: CatalogData; onDraft: (draft: CatalogData) => void }) {
   const sensors = useSensors(useSensor(PointerSensor));
   const labels: Record<DirectoryKind, string> = {
-    categories: "Разделы",
+    categories: "Разделы каталога",
     corporateColors: "Корпоративные цвета",
     clothingSizes: "Размеры одежды",
     materials: "Материалы",
+    brandingMethods: "Способы брендирования",
     cardBackgroundColors: "Фоны карточек"
   };
-  const items = draft[kind] as Array<Category | CorporateColor | ClothingSize | Material | CardBackgroundColor>;
+  const items = draft[kind] as Array<Category | CorporateColor | ClothingSize | Material | BrandingMethod | CardBackgroundColor>;
 
   function addItem() {
     const base = { id: crypto.randomUUID(), title: "Новый элемент" };
@@ -518,14 +611,11 @@ function DirectoryPanel({ draft, onDraft }: { draft: CatalogData; onDraft: (draf
   }
 
   return (
-    <section className="rounded-lg bg-white p-4 shadow-soft">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold">Справочники</h2>
-        <button type="button" onClick={addItem} className="rounded-full bg-brand-50 px-3 py-2 text-sm font-bold text-brand-700">Добавить</button>
+    <section className="rounded-lg bg-white p-5 shadow-soft">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <h2 className="text-2xl font-bold">{labels[kind]}</h2>
+        <button type="button" onClick={addItem} className="rounded-full bg-brand-700 px-4 py-2 text-sm font-bold text-white">Добавить</button>
       </div>
-      <select value={kind} onChange={(event) => setKind(event.target.value as DirectoryKind)} className="input mb-3">
-        {Object.entries(labels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-      </select>
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
         <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
@@ -545,8 +635,8 @@ function DirectoryPanel({ draft, onDraft }: { draft: CatalogData; onDraft: (draf
 
 function GitHubPanel({ github, onGithub, onSaveGitHub }: { github: GitHubConfig; onGithub: (config: GitHubConfig) => void; onSaveGitHub: () => void }) {
   return (
-    <section className="rounded-lg bg-white p-4 shadow-soft">
-      <h2 className="text-xl font-bold">GitHub storage</h2>
+    <section className="max-w-3xl rounded-lg bg-white p-5 shadow-soft">
+      <h2 className="text-2xl font-bold">GitHub storage</h2>
       <p className="mt-2 text-sm leading-6 text-[#42644d]">Token хранится только в localStorage браузера и нужен для коммитов JSON в репозиторий.</p>
       <div className="mt-4 grid gap-3">
         {(["owner", "repo", "branch", "token"] as Array<keyof GitHubConfig>).map((field) => (

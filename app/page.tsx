@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CheckSquare, Filter, Square, X } from "lucide-react";
+import { CheckSquare, Square } from "lucide-react";
 import publishedCatalog from "@/data/catalog.published.json";
 import { ProductCard } from "@/components/ProductCard";
 import { PdfExport } from "@/components/PdfExport";
@@ -35,14 +35,14 @@ export default function CatalogPage() {
     setSelectedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
   }
 
-  function selectVisible() {
+  function toggleVisibleSelection() {
     setNotice("");
-    setSelectedIds((current) => Array.from(new Set([...current, ...visibleProducts.map((item) => item.id)])));
-  }
-
-  function clearSelection() {
-    setNotice("");
-    setSelectedIds([]);
+    const visibleIds = visibleProducts.map((item) => item.id);
+    const allVisibleSelected = visibleIds.every((id) => selectedIds.includes(id));
+    setSelectedIds((current) => {
+      if (allVisibleSelected) return current.filter((id) => !visibleIds.includes(id));
+      return Array.from(new Set([...current, ...visibleIds]));
+    });
   }
 
   return (
@@ -52,26 +52,15 @@ export default function CatalogPage() {
           <div className="max-w-3xl">
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">Подарки для клиентов и команды</p>
             <h1 className="text-4xl font-bold leading-tight text-brand-900 sm:text-5xl">Каталог сувенирной продукции</h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[#42644d]">
-              Выберите позиции для клиентской подборки и скачайте аккуратный PDF с карточками товаров.
-            </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
             <button
               type="button"
-              onClick={selectVisible}
+              onClick={toggleVisibleSelection}
               className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-3 text-sm font-semibold text-brand-700 transition hover:border-brand-500"
             >
               <CheckSquare size={18} />
-              Выбрать все с учётом фильтров
-            </button>
-            <button
-              type="button"
-              onClick={clearSelection}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-3 text-sm font-semibold text-[#42644d] transition hover:border-brand-500"
-            >
-              <X size={18} />
-              Снять выбор
+              Выбрать все
             </button>
             <PdfExport
               catalog={catalog}
@@ -82,10 +71,6 @@ export default function CatalogPage() {
         </header>
 
         <div className="flex flex-col gap-4 rounded-lg bg-white/55 p-4 shadow-soft lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-2 text-sm font-semibold text-brand-900">
-            <Filter size={18} />
-            Разделы
-          </div>
           <div className="flex gap-2 overflow-x-auto pb-1">
             <button
               type="button"

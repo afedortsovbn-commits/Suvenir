@@ -20,6 +20,7 @@
       "corporateColorIds": ["green", "graphite"],
       "clothingSizeIds": ["s", "m", "l", "xl"],
       "printType": "Вышивка, шелкография",
+      "brandingMethodIds": ["embroidery", "silkscreen"],
       "materialIds": ["cotton"],
       "cardSize": "large-vertical",
       "backgroundColorId": "mint"
@@ -35,6 +36,7 @@
       "corporateColorIds": ["white", "green", "blue"],
       "clothingSizeIds": ["s", "m", "l", "xl"],
       "printType": "DTF, шелкография",
+      "brandingMethodIds": ["dtf", "silkscreen"],
       "materialIds": ["cotton"],
       "cardSize": "medium-square",
       "backgroundColorId": "sage"
@@ -50,6 +52,7 @@
       "corporateColorIds": ["green", "graphite"],
       "physicalSize": "A5",
       "printType": "Тиснение, УФ-печать",
+      "brandingMethodIds": ["embossing", "uv"],
       "materialIds": ["paper", "eco-leather"],
       "cardSize": "large-horizontal",
       "backgroundColorId": "cream"
@@ -64,6 +67,7 @@
       "image": "/products/pen.png",
       "corporateColorIds": ["graphite", "blue"],
       "printType": "Гравировка",
+      "brandingMethodIds": ["engraving"],
       "materialIds": ["metal"],
       "cardSize": "small-horizontal",
       "backgroundColorId": "blue-soft"
@@ -79,6 +83,7 @@
       "corporateColorIds": ["green", "white", "graphite"],
       "physicalSize": "500 мл",
       "printType": "УФ-печать, гравировка",
+      "brandingMethodIds": ["uv", "engraving"],
       "materialIds": ["steel"],
       "volume": "500 мл",
       "cardSize": "medium-vertical",
@@ -95,6 +100,7 @@
       "corporateColorIds": ["white", "green"],
       "physicalSize": "38 x 42 см",
       "printType": "Шелкография",
+      "brandingMethodIds": ["silkscreen"],
       "materialIds": ["cotton"],
       "cardSize": "medium-square",
       "backgroundColorId": "sage"
@@ -148,6 +154,14 @@
     { "id": "metal", "title": "Металл", "order": 4 },
     { "id": "steel", "title": "Сталь", "order": 5 },
     { "id": "glass", "title": "Стекло", "order": 6 }
+  ],
+  "brandingMethods": [
+    { "id": "embroidery", "title": "Вышивка", "order": 1 },
+    { "id": "silkscreen", "title": "Шелкография", "order": 2 },
+    { "id": "dtf", "title": "DTF", "order": 3 },
+    { "id": "embossing", "title": "Тиснение", "order": 4 },
+    { "id": "uv", "title": "УФ-печать", "order": 5 },
+    { "id": "engraving", "title": "Гравировка", "order": 6 }
   ],
   "cardBackgroundColors": [
     { "id": "mint", "title": "Мятный", "hex": "#dcefe1" },

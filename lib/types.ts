@@ -32,6 +32,7 @@ export type Product = {
   clothingSizeIds?: string[];
   physicalSize?: string;
   printType?: string;
+  brandingMethodIds?: string[];
   materialIds?: string[];
   volume?: string;
   cardSize: CardSize;
@@ -62,6 +63,12 @@ export type Material = {
   order: number;
 };
 
+export type BrandingMethod = {
+  id: string;
+  title: string;
+  order: number;
+};
+
 export type CardBackgroundColor = {
   id: string;
   title: string;
@@ -76,6 +83,7 @@ export type CatalogData = {
   corporateColors: CorporateColor[];
   clothingSizes: ClothingSize[];
   materials: Material[];
+  brandingMethods: BrandingMethod[];
   cardBackgroundColors: CardBackgroundColor[];
 };
 

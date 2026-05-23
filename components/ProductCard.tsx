@@ -19,11 +19,12 @@ export function ProductCard({ product, catalog, selectable, selected, onToggle, 
   const colors = catalog.corporateColors.filter((item) => product.corporateColorIds?.includes(item.id));
   const sizes = catalog.clothingSizes.filter((item) => product.clothingSizeIds?.includes(item.id));
   const materials = catalog.materials.filter((item) => product.materialIds?.includes(item.id));
+  const brandingMethods = (catalog.brandingMethods ?? []).filter((item) => product.brandingMethodIds?.includes(item.id));
 
   return (
     <article
       className={clsx(
-        "group relative flex min-h-[260px] flex-col overflow-hidden rounded-lg border border-white/80 p-5 shadow-soft transition",
+        "group relative flex min-h-[220px] flex-col overflow-hidden rounded-lg border border-white/80 p-4 shadow-soft transition",
         !compact && cardSizeGridClass[product.cardSize],
         selected && "ring-2 ring-brand-500"
       )}
@@ -41,14 +42,14 @@ export function ProductCard({ product, catalog, selectable, selected, onToggle, 
         </label>
       ) : null}
 
-      <div className="relative z-0 mb-3 flex min-h-[145px] flex-1 items-center justify-center">
+      <div className="relative z-0 mb-2 flex min-h-[120px] flex-1 items-center justify-center">
         {product.image ? (
           <Image
             src={product.image}
             alt={product.title || "Товар"}
             width={720}
             height={720}
-            className="max-h-[330px] w-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-[1.02]"
+            className="max-h-[260px] w-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-[1.02]"
             priority={false}
           />
         ) : (
@@ -76,16 +77,16 @@ export function ProductCard({ product, catalog, selectable, selected, onToggle, 
               {size.title}
             </span>
           ))}
-          {materials.slice(0, 2).map((material) => (
-            <span key={material.id} className="rounded-full bg-white/55 px-2 py-1 text-[11px] text-[#315541]">
-              {material.title}
+          {[...materials.slice(0, 1), ...brandingMethods.slice(0, 1)].map((item) => (
+            <span key={item.id} className="rounded-full bg-white/55 px-2 py-1 text-[11px] text-[#315541]">
+              {item.title}
             </span>
           ))}
         </div>
 
         <div className="mt-4 flex items-end justify-between gap-3">
           <div className="text-xs leading-5 text-[#315541]">
-            {[product.physicalSize, product.volume, product.printType].filter(Boolean).slice(0, 2).join(" · ")}
+            {[product.physicalSize, product.volume, brandingMethods.map((item) => item.title).join(", ") || product.printType].filter(Boolean).slice(0, 2).join(" · ")}
           </div>
           <div className="rounded-full bg-white/80 px-3 py-1 text-sm font-bold text-brand-700">№ {product.sku || "—"}</div>
         </div>

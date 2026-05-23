@@ -28,7 +28,7 @@ textarea {
 
 .catalog-grid {
   grid-auto-flow: dense;
-  grid-auto-rows: minmax(260px, auto);
+  grid-auto-rows: minmax(220px, auto);
 }
 
 .product-title {
@@ -38,7 +38,7 @@ textarea {
 
 .line-clamp-soft {
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
