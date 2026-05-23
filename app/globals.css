@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --page: #f7f8f3;
+  --ink: #173225;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.catalog-grid {
+  grid-auto-flow: dense;
+  grid-auto-rows: minmax(260px, auto);
+}
+
+.product-title {
+  font-size: clamp(1.05rem, 1rem + 0.55vw, 1.75rem);
+  overflow-wrap: anywhere;
+}
+
+.line-clamp-soft {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #d9efdc;
+  background: #ffffff;
+  padding: 0.75rem 1rem;
+  color: #153f25;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #3d9b5a;
+  box-shadow: 0 0 0 3px rgba(61, 155, 90, 0.14);
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+}

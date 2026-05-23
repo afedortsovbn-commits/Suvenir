@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-23T15:30:00.000Z",
+  "categories": [
+    { "id": "merch", "title": "Мерч", "order": 1 },
+    { "id": "stationery", "title": "Канцелярия", "order": 2 },
+    { "id": "accessories", "title": "Аксессуары", "order": 3 },
+    { "id": "coffee", "title": "Кофе", "order": 4 },
+    { "id": "decor", "title": "Декор", "order": 5 }
+  ],
+  "products": [
+    {
+      "id": "p-hoodie",
+      "sectionId": "merch",
+      "order": 1,
+      "sku": "01",
+      "title": "Худи корпоративное",
+      "description": "Плотное худи с мягким начёсом, регулируемым капюшоном и зоной для брендирования на груди или рукаве.",
+      "image": "/products/hoodie.png",
+      "corporateColorIds": ["green", "graphite"],
+      "clothingSizeIds": ["s", "m", "l", "xl"],
+      "printType": "Вышивка, шелкография",
+      "materialIds": ["cotton"],
+      "cardSize": "large-vertical",
+      "backgroundColorId": "mint"
+    },
+    {
+      "id": "p-tshirt",
+      "sectionId": "merch",
+      "order": 2,
+      "sku": "02",
+      "title": "Футболка базовая",
+      "description": "Универсальная футболка для мероприятий, welcome-наборов и промо-команд.",
+      "image": "/products/tshirt.png",
+      "corporateColorIds": ["white", "green", "blue"],
+      "clothingSizeIds": ["s", "m", "l", "xl"],
+      "printType": "DTF, шелкография",
+      "materialIds": ["cotton"],
+      "cardSize": "medium-square",
+      "backgroundColorId": "sage"
+    },
+    {
+      "id": "p-notebook",
+      "sectionId": "stationery",
+      "order": 1,
+      "sku": "03",
+      "title": "Ежедневник с эластичной лентой",
+      "description": "Твёрдая обложка, блок в линейку, карман на форзаце и аккуратная зона для логотипа.",
+      "image": "/products/notebook.png",
+      "corporateColorIds": ["green", "graphite"],
+      "physicalSize": "A5",
+      "printType": "Тиснение, УФ-печать",
+      "materialIds": ["paper", "eco-leather"],
+      "cardSize": "large-horizontal",
+      "backgroundColorId": "cream"
+    },
+    {
+      "id": "p-pen",
+      "sectionId": "stationery",
+      "order": 2,
+      "sku": "04",
+      "title": "Ручка металлическая",
+      "description": "Лаконичная ручка с клипом, подходит для нанесения логотипа лазерной гравировкой.",
+      "image": "/products/pen.png",
+      "corporateColorIds": ["graphite", "blue"],
+      "printType": "Гравировка",
+      "materialIds": ["metal"],
+      "cardSize": "small-horizontal",
+      "backgroundColorId": "blue-soft"
+    },
+    {
+      "id": "p-bottle",
+      "sectionId": "accessories",
+      "order": 1,
+      "sku": "05",
+      "title": "Термобутылка",
+      "description": "Стальная бутылка с матовым покрытием, держит температуру и хорошо смотрится в подарочном наборе.",
+      "image": "/products/bottle.png",
+      "corporateColorIds": ["green", "white", "graphite"],
+      "physicalSize": "500 мл",
+      "printType": "УФ-печать, гравировка",
+      "materialIds": ["steel"],
+      "volume": "500 мл",
+      "cardSize": "medium-vertical",
+      "backgroundColorId": "mint"
+    },
+    {
+      "id": "p-bag",
+      "sectionId": "accessories",
+      "order": 2,
+      "sku": "06",
+      "title": "Шоппер хлопковый",
+      "description": "Плотный шоппер с длинными ручками и большим полем под фирменную графику.",
+      "image": "/products/bag.png",
+      "corporateColorIds": ["white", "green"],
+      "physicalSize": "38 x 42 см",
+      "printType": "Шелкография",
+      "materialIds": ["cotton"],
+      "cardSize": "medium-square",
+      "backgroundColorId": "sage"
+    },
+    {
+      "id": "p-coffee",
+      "sectionId": "coffee",
+      "order": 1,
+      "sku": "07",
+      "title": "Кофе в брендированной пачке",
+      "description": "Зерновой кофе средней обжарки в пакете с индивидуальной этикеткой.",
+      "image": "/products/coffee.png",
+      "corporateColorIds": ["green", "cream"],
+      "materialIds": ["paper"],
+      "volume": "250 г",
+      "cardSize": "large-square",
+      "backgroundColorId": "cream"
+    },
+    {
+      "id": "p-candle",
+      "sectionId": "decor",
+      "order": 1,
+      "sku": "08",
+      "title": "Свеча с фирменной этикеткой",
+      "description": "Ароматическая свеча в стеклянной банке для уютных корпоративных подарков.",
+      "image": "/products/candle.png",
+      "corporateColorIds": ["white", "green"],
+      "physicalSize": "180 г",
+      "materialIds": ["glass"],
+      "cardSize": "medium-square",
+      "backgroundColorId": "rose"
+    }
+  ],
+  "corporateColors": [
+    { "id": "green", "title": "Фирменный зелёный", "hex": "#2f8a4c" },
+    { "id": "graphite", "title": "Графитовый", "hex": "#343b39" },
+    { "id": "white", "title": "Белый", "hex": "#ffffff" },
+    { "id": "blue", "title": "Синий", "hex": "#426d9c" },
+    { "id": "cream", "title": "Молочный", "hex": "#efe7d5" }
+  ],
+  "clothingSizes": [
+    { "id": "s", "title": "S", "order": 1 },
+    { "id": "m", "title": "M", "order": 2 },
+    { "id": "l", "title": "L", "order": 3 },
+    { "id": "xl", "title": "XL", "order": 4 }
+  ],
+  "materials": [
+    { "id": "cotton", "title": "Хлопок", "order": 1 },
+    { "id": "paper", "title": "Бумага", "order": 2 },
+    { "id": "eco-leather", "title": "Эко-кожа", "order": 3 },
+    { "id": "metal", "title": "Металл", "order": 4 },
+    { "id": "steel", "title": "Сталь", "order": 5 },
+    { "id": "glass", "title": "Стекло", "order": 6 }
+  ],
+  "cardBackgroundColors": [
+    { "id": "mint", "title": "Мятный", "hex": "#dcefe1" },
+    { "id": "sage", "title": "Шалфей", "hex": "#e7f0df" },
+    { "id": "cream", "title": "Молочный", "hex": "#f3ead8" },
+    { "id": "blue-soft", "title": "Небесный", "hex": "#e0edf4" },
+    { "id": "rose", "title": "Пудровый", "hex": "#f0e1dc" }
+  ]
+}

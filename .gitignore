@@ -1,0 +1,8 @@
+.next
+out
+node_modules
+.env*.local
+*.tsbuildinfo
+dist
+dev-server*.log
+~$*
