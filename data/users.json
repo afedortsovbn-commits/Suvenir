@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": "2df500dd-e152-4e0e-b23b-63fb9e8769e9",
+    "login": "Fedortsov",
+    "role": "owner",
+    "passwordHash": "l3vjEm6sdRDKpMyxuMVy0CiiYGIHneGuoxs+Mrx2zYk=",
+    "salt": "/5n0JovXw6MV4MAKpkwq6A==",
+    "createdAt": "2026-05-24T18:48:29.654Z"
+  }
+]
