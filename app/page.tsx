@@ -52,7 +52,14 @@ export default function CatalogPage() {
       <section className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-6 rounded-lg bg-white/60 p-5 shadow-soft lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <Image src={publicAsset("/brand/belorusneft-logo.svg")} alt="Белоруснефть" width={720} height={170} className="mb-6 h-auto w-full max-w-[460px]" priority />
+            <Image
+              src={publicAsset("/brand/belorusneft-logo.svg")}
+              alt="Белоруснефть"
+              width={340}
+              height={81}
+              className="mb-5 h-auto w-full max-w-[300px] object-contain"
+              priority
+            />
             <h1 className="text-4xl font-bold leading-tight text-brand-900 sm:text-5xl">Каталог сувенирной продукции</h1>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
