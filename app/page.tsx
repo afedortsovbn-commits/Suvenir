@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CheckSquare, Square } from "lucide-react";
+import Image from "next/image";
 import publishedCatalog from "@/data/catalog.published.json";
 import { ProductCard } from "@/components/ProductCard";
 import { PdfExport } from "@/components/PdfExport";
 import { sortCatalog } from "@/lib/catalog";
 import { fetchRepositoryJson } from "@/lib/github";
+import { publicAsset } from "@/lib/paths";
 import type { CatalogData } from "@/lib/types";
 
 const fallbackCatalog = sortCatalog(publishedCatalog as CatalogData);
@@ -50,7 +52,7 @@ export default function CatalogPage() {
       <section className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-6 rounded-lg bg-white/60 p-5 shadow-soft lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-brand-700">Подарки для клиентов и команды</p>
+            <Image src={publicAsset("/brand/belorusneft-logo.svg")} alt="Белоруснефть" width={720} height={170} className="mb-6 h-auto w-full max-w-[460px]" priority />
             <h1 className="text-4xl font-bold leading-tight text-brand-900 sm:text-5xl">Каталог сувенирной продукции</h1>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="170" viewBox="0 0 720 170" role="img" aria-labelledby="title">
+  <title id="title">Белоруснефть</title>
+  <rect width="720" height="170" fill="white"/>
+  <circle cx="84" cy="85" r="63" fill="#05ad56"/>
+  <circle cx="84" cy="85" r="68" fill="none" stroke="#05ad56" stroke-width="3"/>
+  <path d="M41 70h25V56h36v14h25L84 123 41 70Z" fill="white"/>
+  <path d="M54 75h20V64h9v32h-8V73h-8v17h-8V73h-5v2Zm35-11h9v38h-9V64Zm15 11h10l-10 14V75Z" fill="#ef3e2f"/>
+  <path d="M48 74h22v13h8V61h25v40h-9V67h-7v44h-7L48 74Z" fill="none" stroke="#ef3e2f" stroke-width="5" stroke-linejoin="miter"/>
+  <text x="185" y="105" fill="#05ad56" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="900" letter-spacing="1">БЕЛОРУСНЕФТЬ</text>
+</svg>
