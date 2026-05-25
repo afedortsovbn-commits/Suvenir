@@ -5,6 +5,7 @@ declare module "lucide-react" {
     size?: number | string;
   };
 
+  export const ArrowUp: FC<IconProps>;
   export const CheckSquare: FC<IconProps>;
   export const ChevronDown: FC<IconProps>;
   export const Download: FC<IconProps>;

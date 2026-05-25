@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { ArrowUp, X } from "lucide-react";
 import publishedCatalog from "@/data/catalog.published.json";
 import { ProductCard } from "@/components/ProductCard";
 import { PdfExport } from "@/components/PdfExport";
@@ -15,6 +16,7 @@ const fallbackCatalog = sortCatalog(publishedCatalog as CatalogData);
 export default function CatalogPage() {
   const [catalog, setCatalog] = useState<CatalogData>(fallbackCatalog);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(() => fallbackCatalog.categories.map((category) => category.id));
+  const [openedProductId, setOpenedProductId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
@@ -29,10 +31,17 @@ export default function CatalogPage() {
     if (!selectedCategoryIds.length) return [];
     return catalog.products.filter((product) => selectedCategoryIds.includes(product.sectionId));
   }, [catalog.products, selectedCategoryIds]);
+  const openedProduct = catalog.products.find((product) => product.id === openedProductId);
+  const allCategoriesSelected = selectedCategoryIds.length === catalog.categories.length;
 
   function toggleCategory(id: string) {
     setNotice("");
     setSelectedCategoryIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  }
+
+  function toggleAllCategories() {
+    setNotice("");
+    setSelectedCategoryIds((current) => (current.length === catalog.categories.length ? [] : catalog.categories.map((category) => category.id)));
   }
 
   return (
@@ -60,7 +69,16 @@ export default function CatalogPage() {
         </header>
 
         <div className="rounded-lg bg-white/55 p-4 shadow-soft">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleAllCategories}
+              className={`mr-2 border-b-2 px-1 py-2 text-sm font-bold transition ${
+                allCategoriesSelected ? "border-brand-700 text-brand-700" : "border-transparent text-[#42644d] hover:border-brand-300"
+              }`}
+            >
+              Все
+            </button>
             {catalog.categories.map((category) => (
               <button
                 key={category.id}
@@ -82,10 +100,41 @@ export default function CatalogPage() {
 
         <section className="catalog-grid grid grid-cols-1 gap-5 md:grid-cols-3 xl:grid-cols-4">
           {visibleProducts.map((product) => (
-            <ProductCard key={product.id} product={product} catalog={catalog} />
+            <ProductCard key={product.id} product={product} catalog={catalog} onOpen={setOpenedProductId} />
           ))}
         </section>
       </section>
+
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        className="fixed bottom-5 right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-brand-700 text-white shadow-soft transition hover:bg-brand-900"
+        aria-label="Вернуться в начало"
+      >
+        <ArrowUp size={22} />
+      </button>
+
+      {openedProduct ? (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#f7f8f3] p-4 sm:p-6">
+          <div className="mx-auto flex min-h-full max-w-6xl flex-col">
+            <div className="mb-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setOpenedProductId(null)}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#42644d] shadow-soft hover:bg-brand-50"
+                aria-label="Закрыть"
+              >
+                <X size={22} />
+              </button>
+            </div>
+            <div className="flex flex-1 items-center justify-center">
+              <div className="w-full">
+                <ProductCard product={openedProduct} catalog={catalog} compact />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }

@@ -50,6 +50,34 @@ export function sortCatalog(data: CatalogData) {
   };
 }
 
+export function formatProductSku(categoryIndex: number, productIndex: number) {
+  return `${String(categoryIndex + 1).padStart(2, "0")}.${String(productIndex + 1).padStart(2, "0")}`;
+}
+
+export function normalizeProductOrder(data: CatalogData): CatalogData {
+  const categories = [...data.categories].sort((a, b) => a.order - b.order);
+  const productsByCategory = new Map<string, Product[]>();
+
+  categories.forEach((category) => {
+    productsByCategory.set(
+      category.id,
+      data.products.filter((product) => product.sectionId === category.id).sort((a, b) => a.order - b.order)
+    );
+  });
+
+  const knownCategoryIds = new Set(categories.map((category) => category.id));
+  const orphanProducts = data.products.filter((product) => !knownCategoryIds.has(product.sectionId)).sort((a, b) => a.order - b.order);
+  const products = categories.flatMap((category, categoryIndex) =>
+    (productsByCategory.get(category.id) ?? []).map((product, productIndex) => ({
+      ...product,
+      order: productIndex + 1,
+      sku: formatProductSku(categoryIndex, productIndex)
+    }))
+  );
+
+  return { ...data, products: [...products, ...orphanProducts] };
+}
+
 export function validateCatalog(data: CatalogData): CatalogValidationIssue[] {
   const issues: CatalogValidationIssue[] = [];
   const categoryIds = new Set(data.categories.map((item) => item.id));

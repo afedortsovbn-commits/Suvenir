@@ -12,10 +12,11 @@ type ProductCardProps = {
   selectable?: boolean;
   selected?: boolean;
   onToggle?: (id: string) => void;
+  onOpen?: (id: string) => void;
   compact?: boolean;
 };
 
-export function ProductCard({ product, catalog, selectable, selected, onToggle, compact }: ProductCardProps) {
+export function ProductCard({ product, catalog, selectable, selected, onToggle, onOpen, compact }: ProductCardProps) {
   const background = catalog.cardBackgroundColors.find((item) => item.id === product.backgroundColorId);
   const colors = catalog.corporateColors.filter((item) => product.corporateColorIds?.includes(item.id));
   const sizes = catalog.clothingSizes.filter((item) => product.clothingSizeIds?.includes(item.id));
@@ -27,12 +28,26 @@ export function ProductCard({ product, catalog, selectable, selected, onToggle, 
       className={clsx(
         "group relative flex min-h-[220px] flex-col overflow-hidden rounded-lg border border-white/80 p-4 shadow-soft transition",
         !compact && cardSizeGridClass[product.cardSize],
+        onOpen && "cursor-zoom-in",
         selected && "ring-2 ring-brand-500"
       )}
       style={{ backgroundColor: background?.hex ?? "#e7f0df" }}
+      role={onOpen ? "button" : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onClick={() => onOpen?.(product.id)}
+      onKeyDown={(event) => {
+        if (!onOpen) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen(product.id);
+        }
+      }}
     >
       {selectable ? (
-        <label className="absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/85 shadow-sm">
+        <label
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/85 shadow-sm"
+          onClick={(event) => event.stopPropagation()}
+        >
           <input
             aria-label={`Выбрать ${product.title}`}
             className="h-5 w-5 accent-brand-700"

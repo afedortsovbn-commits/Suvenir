@@ -46,26 +46,33 @@ async function getFileSha(config: GitHubConfig, path: string) {
 }
 
 export async function commitGitHubFile(config: GitHubConfig, file: GitHubFile) {
-  const sha = await getFileSha(config, file.path);
-  const response = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${file.path}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${config.token}`,
-      Accept: "application/vnd.github+json",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message: file.message,
-      branch: config.branch,
-      content: btoa(unescape(encodeURIComponent(file.content))),
-      sha
-    })
-  });
+  let details = "";
 
-  if (!response.ok) {
-    const details = await response.text();
-    throw new Error(`GitHub не принял изменения: ${details}`);
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const sha = await getFileSha(config, file.path);
+    const response = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${file.path}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${config.token}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: file.message,
+        branch: config.branch,
+        content: btoa(unescape(encodeURIComponent(file.content))),
+        sha
+      })
+    });
+
+    if (response.ok) return;
+
+    details = await response.text();
+    if (response.status !== 409) break;
+    await new Promise((resolve) => setTimeout(resolve, 500 + attempt * 500));
   }
+
+  throw new Error(`GitHub не принял изменения: ${details}`);
 }
 
 export async function commitJson(config: GitHubConfig, path: string, data: unknown, message: string) {
