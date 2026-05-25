@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "updatedAt": "2026-05-25T03:44:52+00:00",
+  "version": 3,
+  "updatedAt": "2026-05-25T16:41:27.905Z",
   "categories": [
     {
       "id": "merch",
@@ -1444,6 +1444,11 @@
       "id": "kraft",
       "title": "Крафтовый",
       "hex": "#b48a62"
+    },
+    {
+      "id": "a58fe45c-2cfb-44f4-8016-f276df2c0194",
+      "title": "Новый элемент",
+      "hex": "#e7f0df"
     }
   ],
   "clothingSizes": [
