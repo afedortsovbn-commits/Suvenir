@@ -15,20 +15,24 @@ const fallbackCatalog = sortCatalog(publishedCatalog as CatalogData);
 
 export default function CatalogPage() {
   const [catalog, setCatalog] = useState<CatalogData>(fallbackCatalog);
-  const [activeCategory, setActiveCategory] = useState("all");
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(() => fallbackCatalog.categories.map((category) => category.id));
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
     fetchRepositoryJson<CatalogData>("data/catalog.published.json", fallbackCatalog).then((data) => {
-      setCatalog(sortCatalog(data));
+      const sorted = sortCatalog(data);
+      setCatalog(sorted);
+      setSelectedCategoryIds(sorted.categories.map((category) => category.id));
     });
   }, []);
 
   const visibleProducts = useMemo(() => {
-    if (activeCategory === "all") return catalog.products;
-    return catalog.products.filter((product) => product.sectionId === activeCategory);
-  }, [activeCategory, catalog.products]);
+    if (!selectedCategoryIds.length) return [];
+    return catalog.products.filter((product) => selectedCategoryIds.includes(product.sectionId));
+  }, [catalog.products, selectedCategoryIds]);
+
+  const allCategoriesSelected = catalog.categories.length > 0 && selectedCategoryIds.length === catalog.categories.length;
 
   const selectedProducts = catalog.products.filter((product) => selectedIds.includes(product.id));
 
@@ -47,6 +51,14 @@ export default function CatalogPage() {
     });
   }
 
+  function toggleAllCategories() {
+    setSelectedCategoryIds(allCategoriesSelected ? [] : catalog.categories.map((category) => category.id));
+  }
+
+  function toggleCategory(id: string) {
+    setSelectedCategoryIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  }
+
   return (
     <main className="min-h-screen bg-[#f7f8f3]">
       <section className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
@@ -60,13 +72,13 @@ export default function CatalogPage() {
               className="mb-5 h-auto w-full max-w-[260px] object-contain"
               priority
             />
-            <h1 className="text-4xl font-bold leading-tight text-brand-900 sm:text-5xl">Каталог сувенирной продукции</h1>
+            <h1 className="text-2xl font-bold leading-tight text-brand-900 sm:text-5xl">Каталог сувенирной продукции</h1>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
             <button
               type="button"
               onClick={toggleVisibleSelection}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-3 text-sm font-semibold text-brand-700 transition hover:border-brand-500"
+              className="inline-flex min-w-0 items-center justify-center gap-2 rounded-full border border-brand-100 bg-white px-3 py-3 text-xs font-semibold text-brand-700 transition hover:border-brand-500 sm:px-4 sm:text-sm"
             >
               <CheckSquare size={18} />
               Выбрать все
@@ -79,33 +91,32 @@ export default function CatalogPage() {
           </div>
         </header>
 
-        <div className="flex flex-col gap-4 rounded-lg bg-white/55 p-4 shadow-soft lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="rounded-lg bg-white/55 p-4 shadow-soft">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => setActiveCategory("all")}
-              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
-                activeCategory === "all" ? "bg-brand-700 text-white" : "bg-white text-brand-700 hover:bg-brand-50"
+              onClick={toggleAllCategories}
+              className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                allCategoriesSelected ? "border-brand-700 bg-brand-700 text-white" : "border-brand-200 bg-white text-brand-700 hover:bg-brand-50"
               }`}
             >
+              {allCategoriesSelected ? <CheckSquare size={16} /> : <Square size={16} />}
               Все
             </button>
             {catalog.categories.map((category) => (
               <button
                 key={category.id}
                 type="button"
-                onClick={() => setActiveCategory(category.id)}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  activeCategory === category.id ? "bg-brand-700 text-white" : "bg-white text-brand-700 hover:bg-brand-50"
+                onClick={() => toggleCategory(category.id)}
+                className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  selectedCategoryIds.includes(category.id)
+                    ? "border-brand-700 bg-brand-700 text-white"
+                    : "border-white bg-white text-brand-700 hover:bg-brand-50"
                 }`}
               >
                 {category.title}
               </button>
             ))}
-          </div>
-          <div className="inline-flex items-center gap-2 text-sm font-semibold text-[#42644d]">
-            {selectedIds.length ? <CheckSquare size={18} /> : <Square size={18} />}
-            Выбрано: {selectedIds.length}
           </div>
         </div>
 

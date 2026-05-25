@@ -16,7 +16,7 @@ const pageHeight = 1123;
 const pagePadding = 46;
 const gap = 18;
 const cardWidth = 332;
-const cardHeight = 280;
+const cardHeight = 318;
 
 export function PdfExport({ catalog, products, disabled, onEmpty }: PdfExportProps) {
   async function downloadPdf() {
@@ -37,13 +37,16 @@ export function PdfExport({ catalog, products, disabled, onEmpty }: PdfExportPro
 
       for (let index = 0; index < pages.length; index += 1) {
         const canvas = await html2canvas(pages[index], {
-          scale: 2,
+          scale: 2.5,
           backgroundColor: "#f7f8f3",
+          width: pageWidth,
+          height: pageHeight,
+          windowWidth: pageWidth,
           useCORS: true
         });
-        const image = canvas.toDataURL("image/jpeg", 0.95);
+        const image = canvas.toDataURL("image/png");
         if (index > 0) pdf.addPage();
-        pdf.addImage(image, "JPEG", 0, 0, 595.28, 841.89);
+        pdf.addImage(image, "PNG", 0, 0, 595.28, 841.89);
       }
 
       pdf.save("suvenir-catalog.pdf");
@@ -57,7 +60,7 @@ export function PdfExport({ catalog, products, disabled, onEmpty }: PdfExportPro
       type="button"
       onClick={downloadPdf}
       disabled={disabled}
-      className="inline-flex items-center gap-2 rounded-full bg-brand-700 px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-45"
+      className="inline-flex min-w-0 items-center justify-center gap-2 rounded-full bg-brand-700 px-3 py-3 text-xs font-semibold text-white shadow-soft transition hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-45 sm:px-5 sm:text-sm"
     >
       <Download size={18} />
       Скачать PDF
@@ -139,17 +142,17 @@ function createCard(catalog: CatalogData, product: Product) {
   const img = document.createElement("img");
   img.src = publicAsset(product.image);
   img.alt = product.title;
-  img.style.cssText = "position:absolute;left:24px;right:24px;top:14px;width:284px;height:104px;object-fit:contain;";
+  img.style.cssText = "position:absolute;left:22px;right:22px;top:16px;width:288px;height:132px;object-fit:contain;";
   card.appendChild(img);
 
   const title = document.createElement("h3");
   title.textContent = product.title || "Новая позиция";
-  title.style.cssText = "position:absolute;left:18px;right:18px;top:126px;margin:0;font-size:17px;line-height:1.2;color:#153f25;font-weight:800;overflow-wrap:anywhere;word-break:break-word;max-height:62px;overflow:hidden;";
+  title.style.cssText = "position:absolute;left:18px;right:18px;top:164px;margin:0;font-size:16px;line-height:1.2;color:#153f25;font-weight:800;overflow-wrap:anywhere;word-break:break-word;max-height:42px;overflow:hidden;";
   card.appendChild(title);
 
   const description = document.createElement("p");
   description.textContent = product.description || "";
-  description.style.cssText = "position:absolute;left:18px;right:18px;top:194px;margin:0;font-size:11px;line-height:1.35;color:#315541;max-height:45px;overflow:hidden;word-break:break-word;";
+  description.style.cssText = "position:absolute;left:18px;right:18px;top:214px;margin:0;font-size:10.5px;line-height:1.35;color:#315541;max-height:48px;overflow:hidden;word-break:break-word;";
   card.appendChild(description);
 
   const meta = document.createElement("div");

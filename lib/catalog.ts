@@ -13,11 +13,11 @@ export const cardSizeLabels: Record<Product["cardSize"], string> = {
 };
 
 export const cardSizeGridClass: Record<Product["cardSize"], string> = {
-  "large-horizontal": "md:col-span-2 md:row-span-1",
-  "large-vertical": "md:col-span-1 md:row-span-2",
-  "large-square": "md:col-span-2 md:row-span-2",
+  "large-horizontal": "md:col-span-2",
+  "large-vertical": "",
+  "large-square": "md:col-span-2",
   "medium-horizontal": "md:col-span-2",
-  "medium-vertical": "md:row-span-2",
+  "medium-vertical": "",
   "medium-square": "",
   "small-horizontal": "",
   "small-vertical": "",
