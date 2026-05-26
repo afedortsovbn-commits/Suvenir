@@ -1,6 +1,6 @@
 {
-  "version": 15,
-  "updatedAt": "2026-05-26T03:38:46.009Z",
+  "version": 22,
+  "updatedAt": "2026-05-26T17:06:52.250Z",
   "categories": [
     {
       "id": "merch",
@@ -30,10 +30,38 @@
   ],
   "products": [
     {
-      "id": "pdf-1-01",
+      "id": "pdf-1-04",
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
+      "title": "Поло",
+      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
+      "image": "/products/pdf-1-04.png",
+      "corporateColorIds": [
+        "green",
+        "white"
+      ],
+      "clothingSizeIds": [
+        "xxl-5xl"
+      ],
+      "printType": "silkscreen, silk-transfer, dtf, embroidery",
+      "brandingMethodIds": [
+        "silkscreen",
+        "silk-transfer",
+        "dtf",
+        "embroidery"
+      ],
+      "materialIds": [
+        "cotton"
+      ],
+      "cardSize": "large-vertical",
+      "backgroundColorId": "mint"
+    },
+    {
+      "id": "pdf-1-01",
+      "sectionId": "merch",
+      "order": 2,
+      "sku": "01.02",
       "title": "Бейсболка",
       "description": "Вышивка и термотрансфер. Материал: хлопок.",
       "image": "/products/pdf-1-01.png",
@@ -54,32 +82,6 @@
       ],
       "cardSize": "medium-horizontal",
       "backgroundColorId": "sage"
-    },
-    {
-      "id": "pdf-1-02",
-      "sectionId": "merch",
-      "order": 2,
-      "sku": "01.02",
-      "title": "Бомбер",
-      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
-      "image": "/products/pdf-1-02.png",
-      "corporateColorIds": [
-        "green",
-        "white"
-      ],
-      "clothingSizeIds": [],
-      "printType": "silk-transfer, embroidery, dtf",
-      "brandingMethodIds": [
-        "silk-transfer",
-        "embroidery",
-        "dtf"
-      ],
-      "materialIds": [
-        "cotton",
-        "polyester"
-      ],
-      "cardSize": "large-vertical",
-      "backgroundColorId": "cream"
     },
     {
       "id": "pdf-1-03",
@@ -106,32 +108,30 @@
       "backgroundColorId": "mint"
     },
     {
-      "id": "pdf-1-04",
+      "id": "pdf-1-02",
       "sectionId": "merch",
       "order": 4,
       "sku": "01.04",
-      "title": "Поло",
-      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
-      "image": "/products/pdf-1-04.png",
+      "title": "Бомбер",
+      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
+      "image": "/products/pdf-1-02.png",
       "corporateColorIds": [
         "green",
         "white"
       ],
-      "clothingSizeIds": [
-        "xxl-5xl"
-      ],
-      "printType": "silkscreen, silk-transfer, dtf, embroidery",
+      "clothingSizeIds": [],
+      "printType": "silk-transfer, embroidery, dtf",
       "brandingMethodIds": [
-        "silkscreen",
         "silk-transfer",
-        "dtf",
-        "embroidery"
+        "embroidery",
+        "dtf"
       ],
       "materialIds": [
-        "cotton"
+        "cotton",
+        "polyester"
       ],
       "cardSize": "large-vertical",
-      "backgroundColorId": "mint"
+      "backgroundColorId": "cream"
     },
     {
       "id": "pdf-1-05",
@@ -540,7 +540,7 @@
     {
       "id": "pdf-2-01",
       "sectionId": "stationery",
-      "order": 1,
+      "order": 21,
       "sku": "02.01",
       "title": "Ручка шариковая Legend (глянец)",
       "description": "Гравировка, УФ-печать. Материал: металл-глянец. Толщина письма: 1,0 мм.",
@@ -564,7 +564,7 @@
     {
       "id": "pdf-2-02",
       "sectionId": "stationery",
-      "order": 2,
+      "order": 22,
       "sku": "02.02",
       "title": "Ручка шариковая Legend (софттач)",
       "description": "Гравировка, УФ-печать. Материал: металл-софттач. Толщина письма: 1,0 мм.",
@@ -588,7 +588,7 @@
     {
       "id": "pdf-2-03",
       "sectionId": "stationery",
-      "order": 3,
+      "order": 23,
       "sku": "02.03",
       "title": "Точилка «Нефтяная вышка»",
       "description": "Гравировка. Материал: металл.",
@@ -611,7 +611,7 @@
     {
       "id": "pdf-2-04",
       "sectionId": "stationery",
-      "order": 4,
+      "order": 24,
       "sku": "02.04",
       "title": "Ручка-роллер Straight Si R Touch",
       "description": "Гравировка, УФ-печать. Материал: металл. Толщина письма: 0,7 мм.",
@@ -635,7 +635,7 @@
     {
       "id": "pdf-2-05",
       "sectionId": "stationery",
-      "order": 5,
+      "order": 25,
       "sku": "02.05",
       "title": "Ручка шариковая Senator",
       "description": "Тампопечать. Материал: металл, пластик. Толщина письма: 1,0 мм.",
@@ -659,7 +659,7 @@
     {
       "id": "pdf-2-06",
       "sectionId": "stationery",
-      "order": 6,
+      "order": 26,
       "sku": "02.06",
       "title": "Ручка шариковая Эко",
       "description": "Тампопечать. Материал: пробка, пластик.",
@@ -683,7 +683,7 @@
     {
       "id": "pdf-2-07",
       "sectionId": "stationery",
-      "order": 7,
+      "order": 27,
       "sku": "02.07",
       "title": "Блокнот A5 Линии",
       "description": "Шелкография, УФ-печать, бесцветное тиснение, тиснение фольгой. Искусственная кожа.",
@@ -710,7 +710,7 @@
     {
       "id": "pdf-2-08",
       "sectionId": "stationery",
-      "order": 8,
+      "order": 28,
       "sku": "02.08",
       "title": "Блокнот A5 Кожа",
       "description": "Шелкография, УФ-печать, бесцветное тиснение, тиснение фольгой. Искусственная кожа.",
@@ -737,7 +737,7 @@
     {
       "id": "pdf-2-09",
       "sectionId": "stationery",
-      "order": 9,
+      "order": 29,
       "sku": "02.09",
       "title": "Блокнот A5 Эко",
       "description": "УФ-печать. Материал: пробка, картон.",
@@ -762,7 +762,7 @@
     {
       "id": "pdf-3-01",
       "sectionId": "accessories",
-      "order": 1,
+      "order": 30,
       "sku": "03.01",
       "title": "Мультитул",
       "description": "Гравировка, тиснение, термотрансфер. Материал: кожа.",
@@ -788,7 +788,7 @@
     {
       "id": "pdf-3-02",
       "sectionId": "accessories",
-      "order": 2,
+      "order": 31,
       "sku": "03.02",
       "title": "Кардхолдер",
       "description": "Брендирование: Молодежный Совет. УФ-печать, тиснение фольгой, блинт.",
@@ -814,7 +814,7 @@
     {
       "id": "pdf-3-03",
       "sectionId": "accessories",
-      "order": 3,
+      "order": 32,
       "sku": "03.03",
       "title": "Значок",
       "description": "Фирменный металлический значок.",
@@ -837,7 +837,7 @@
     {
       "id": "pdf-3-04",
       "sectionId": "accessories",
-      "order": 4,
+      "order": 33,
       "sku": "03.04",
       "title": "3D стикеры",
       "description": "Брендирование: Молодежный Совет. Наклейка из заплейки с заливкой полимерной смолой.",
@@ -861,7 +861,7 @@
     {
       "id": "pdf-3-05",
       "sectionId": "accessories",
-      "order": 5,
+      "order": 34,
       "sku": "03.05",
       "title": "Кардхолдер для телефона",
       "description": "Брендирование: Молодежный Совет. Шелкография. Материал: силикон.",
@@ -885,7 +885,7 @@
     {
       "id": "pdf-3-06",
       "sectionId": "accessories",
-      "order": 6,
+      "order": 35,
       "sku": "03.06",
       "title": "Чехол для пропуска",
       "description": "Брендирование: Молодежный Совет. Гравировка, тиснение, термотрансфер. Материал: кожа.",
@@ -911,7 +911,7 @@
     {
       "id": "pdf-3-07",
       "sectionId": "accessories",
-      "order": 7,
+      "order": 36,
       "sku": "03.07",
       "title": "Брелок металлический",
       "description": "Заливка полимерной смолой, гравировка. Материал: металл.",
@@ -936,7 +936,7 @@
     {
       "id": "pdf-3-08",
       "sectionId": "accessories",
-      "order": 8,
+      "order": 37,
       "sku": "03.08",
       "title": "Брелок бамбуковый",
       "description": "Гравировка. Материал: бамбук.",
@@ -960,7 +960,7 @@
     {
       "id": "pdf-3-09",
       "sectionId": "accessories",
-      "order": 9,
+      "order": 38,
       "sku": "03.09",
       "title": "Автовизитница",
       "description": "Гравировка. Материал: металл.",
@@ -984,7 +984,7 @@
     {
       "id": "pdf-3-10",
       "sectionId": "accessories",
-      "order": 10,
+      "order": 39,
       "sku": "03.10",
       "title": "Ключница",
       "description": "Тиснение. Материал: кожа.",
@@ -1007,7 +1007,7 @@
     {
       "id": "pdf-3-11",
       "sectionId": "accessories",
-      "order": 11,
+      "order": 40,
       "sku": "03.11",
       "title": "Магнитный аккумулятор",
       "description": "Тампопечать, лазерная гравировка. Материал: пластик.",
@@ -1032,7 +1032,7 @@
     {
       "id": "pdf-4-01",
       "sectionId": "coffee",
-      "order": 1,
+      "order": 41,
       "sku": "04.01",
       "title": "Кофе Coffee carte Blend №1",
       "description": "Регион: Вьетнам, Бразилия, Колумбия. Обжарка: средне-тёмная.",
@@ -1054,7 +1054,7 @@
     {
       "id": "pdf-4-02",
       "sectionId": "coffee",
-      "order": 2,
+      "order": 42,
       "sku": "04.02",
       "title": "Кофе Coffee carte Tinto",
       "description": "Регион: Колумбия. Обжарка: средне-тёмная.",
@@ -1076,7 +1076,7 @@
     {
       "id": "pdf-4-03",
       "sectionId": "coffee",
-      "order": 3,
+      "order": 43,
       "sku": "04.03",
       "title": "Кофе Coffee carte Phin",
       "description": "Регион: Вьетнам. Обжарка: средне-тёмная.",
@@ -1098,7 +1098,7 @@
     {
       "id": "pdf-4-04",
       "sectionId": "coffee",
-      "order": 4,
+      "order": 44,
       "sku": "04.04",
       "title": "Кофе Coffee carte Cafezinho",
       "description": "Регион: Бразилия. Обжарка: средне-тёмная.",
@@ -1120,7 +1120,7 @@
     {
       "id": "pdf-4-05",
       "sectionId": "coffee",
-      "order": 5,
+      "order": 45,
       "sku": "04.05",
       "title": "Кофе Coffee carte Buna Tetu",
       "description": "Регион: Эфиопия. Обжарка: светлая.",
@@ -1142,7 +1142,7 @@
     {
       "id": "pdf-4-06",
       "sectionId": "coffee",
-      "order": 6,
+      "order": 46,
       "sku": "04.06",
       "title": "Ручная кофемашина",
       "description": "Тампопечать, термотрансфер. Материал: PBT, PP, нержавеющая сталь, силикон.",
@@ -1170,7 +1170,7 @@
     {
       "id": "pdf-4-07",
       "sectionId": "coffee",
-      "order": 7,
+      "order": 47,
       "sku": "04.07",
       "title": "Кофемолка",
       "description": "УФ-печать, тампопечать. Материал: пластик.",
@@ -1195,7 +1195,7 @@
     {
       "id": "pdf-5-01",
       "sectionId": "decor",
-      "order": 1,
+      "order": 48,
       "sku": "05.01",
       "title": "Аромадиффузор",
       "description": "Тампопечать, цифровая печать. Материал: стекло, фибровые палочки.",
@@ -1221,7 +1221,7 @@
     {
       "id": "pdf-5-02",
       "sectionId": "decor",
-      "order": 2,
+      "order": 49,
       "sku": "05.02",
       "title": "Зажигалка плазменная",
       "description": "УФ-печать. Материал: алюминий.",
@@ -1245,7 +1245,7 @@
     {
       "id": "pdf-5-03",
       "sectionId": "decor",
-      "order": 3,
+      "order": 50,
       "sku": "05.03",
       "title": "Свеча в подсвечнике",
       "description": "Цифровая печать. Материал: стекло.",
@@ -1269,7 +1269,7 @@
     {
       "id": "pdf-5-04",
       "sectionId": "decor",
-      "order": 4,
+      "order": 51,
       "sku": "05.04",
       "title": "Песочные часы",
       "description": "Гравировка, тиснение, термотрансфер. Материал: стекло, дерево.",
@@ -1296,7 +1296,7 @@
     {
       "id": "pdf-5-05",
       "sectionId": "decor",
-      "order": 5,
+      "order": 52,
       "sku": "05.05",
       "title": "Часы настенные",
       "description": "Фрезеровка. Материал: дерево.",
@@ -1319,7 +1319,7 @@
     {
       "id": "pdf-5-06",
       "sectionId": "decor",
-      "order": 6,
+      "order": 53,
       "sku": "05.06",
       "title": "Часы настольные",
       "description": "Гравировка, тиснение, термотрансфер. Материал: металл, дерево.",
@@ -1346,7 +1346,7 @@
     {
       "id": "pdf-5-07",
       "sectionId": "decor",
-      "order": 7,
+      "order": 54,
       "sku": "05.07",
       "title": "Увлажнитель",
       "description": "УФ-печать, тиснение фольгой, блинт. Материал: полиуретан.",
@@ -1372,7 +1372,7 @@
     {
       "id": "pdf-5-08",
       "sectionId": "decor",
-      "order": 8,
+      "order": 55,
       "sku": "05.08",
       "title": "Аромадиффузор для автомобиля",
       "description": "Тампопечать. Материал: пластик.",
@@ -1396,7 +1396,7 @@
     {
       "id": "pdf-5-09",
       "sectionId": "decor",
-      "order": 9,
+      "order": 56,
       "sku": "05.09",
       "title": "Картина по номерам",
       "description": "Материал: холст.",
