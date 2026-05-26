@@ -21,6 +21,15 @@ type GitHubErrorPayload = {
   message?: string;
 };
 
+class GitHubRequestError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
+}
+
 export function createGitHubConfig(token: string): GitHubConfig {
   return { ...repositoryConfig, token };
 }
@@ -50,7 +59,7 @@ async function gitHubRequest<T>(config: GitHubConfig, path: string, init: Reques
   });
 
   if (!response.ok) {
-    throw new Error(await readGitHubError(response));
+    throw new GitHubRequestError(response.status, await readGitHubError(response));
   }
 
   return (await response.json()) as T;
@@ -69,7 +78,7 @@ export async function fetchRepositoryJson<T>(path: string, fallback: T): Promise
 export async function commitGitHubFile(config: GitHubConfig, file: GitHubFile) {
   let details = "";
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
     try {
       const ref = await gitHubRequest<{ object: { sha: string } }>(config, `/git/ref/heads/${config.branch}`);
       const head = await gitHubRequest<{ tree: { sha: string } }>(config, `/git/commits/${ref.object.sha}`);
@@ -113,7 +122,9 @@ export async function commitGitHubFile(config: GitHubConfig, file: GitHubFile) {
       return;
     } catch (error) {
       details = error instanceof Error ? error.message : "неизвестная ошибка GitHub";
-      await new Promise((resolve) => setTimeout(resolve, 500 + attempt * 500));
+      const canRetry = error instanceof GitHubRequestError ? [409, 422].includes(error.status) : true;
+      if (!canRetry) break;
+      await new Promise((resolve) => setTimeout(resolve, 700 + attempt * 700));
     }
   }
 

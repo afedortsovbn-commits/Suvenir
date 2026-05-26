@@ -42,6 +42,7 @@ const initialDraft = sortCatalog(draftJson as CatalogData);
 const initialPublished = sortCatalog(publishedJson as CatalogData);
 const initialUsers = usersJson as User[];
 const tokenStorageKey = "suvenir.githubToken";
+const adminBuildVersion = "2026-05-26-ff-retry";
 
 type AdminSection = "access" | "products" | "categories" | "corporateColors" | "clothingSizes" | "materials" | "brandingMethods" | "cardBackgroundColors" | "github";
 type DirectoryKind = Exclude<AdminSection, "access" | "products" | "github">;
@@ -205,7 +206,8 @@ export default function AdminPage() {
     <main className="min-h-screen bg-[#f7f8f3] text-brand-900">
       <div className="grid min-h-screen lg:h-screen lg:grid-cols-[300px_1fr] lg:overflow-hidden">
         <aside className="border-r border-brand-100 bg-white p-5 lg:h-screen lg:overflow-y-auto">
-          <h1 className="mb-5 text-2xl font-bold">Сувенирный каталог</h1>
+          <h1 className="mb-1 text-2xl font-bold">Сувенирный каталог</h1>
+          <div className="mb-5 text-xs font-semibold text-[#6b806f]">Версия админки: {adminBuildVersion}</div>
 
           <div className="relative mb-4">
             <button
