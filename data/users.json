@@ -5,6 +5,10 @@
     "role": "owner",
     "passwordHash": "l3vjEm6sdRDKpMyxuMVy0CiiYGIHneGuoxs+Mrx2zYk=",
     "salt": "/5n0JovXw6MV4MAKpkwq6A==",
-    "createdAt": "2026-05-24T18:48:29.654Z"
+    "createdAt": "2026-05-24T18:48:29.654Z",
+    "githubToken": {
+      "iv": "I6x/hZnQ7aXi8m6+",
+      "value": "F/OGTwchi9zwwkRxzKbPkcA0eSQb2xTUxxFozEL7H0ylDKREfM4yykKKTGxencwEdgi06pbIpAGCDdLd8CCyxJ5cVt7e5LLkO7+P7DEUrHz3hHriCldJ6aM9HuwoVX14BIT9mSqkvgYmMUERpw=="
+    }
   }
 ]
