@@ -1,6 +1,6 @@
 {
-  "version": 13,
-  "updatedAt": "2026-05-26T03:22:33.482Z",
+  "version": 15,
+  "updatedAt": "2026-05-26T03:38:46.009Z",
   "categories": [
     {
       "id": "merch",
@@ -30,36 +30,10 @@
   ],
   "products": [
     {
-      "id": "pdf-1-02",
+      "id": "pdf-1-01",
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
-      "title": "Бомбер",
-      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
-      "image": "/products/pdf-1-02.png",
-      "corporateColorIds": [
-        "green",
-        "white"
-      ],
-      "clothingSizeIds": [],
-      "printType": "silk-transfer, embroidery, dtf",
-      "brandingMethodIds": [
-        "silk-transfer",
-        "embroidery",
-        "dtf"
-      ],
-      "materialIds": [
-        "cotton",
-        "polyester"
-      ],
-      "cardSize": "large-vertical",
-      "backgroundColorId": "cream"
-    },
-    {
-      "id": "pdf-1-01",
-      "sectionId": "merch",
-      "order": 2,
-      "sku": "01.02",
       "title": "Бейсболка",
       "description": "Вышивка и термотрансфер. Материал: хлопок.",
       "image": "/products/pdf-1-01.png",
@@ -80,6 +54,32 @@
       ],
       "cardSize": "medium-horizontal",
       "backgroundColorId": "sage"
+    },
+    {
+      "id": "pdf-1-02",
+      "sectionId": "merch",
+      "order": 2,
+      "sku": "01.02",
+      "title": "Бомбер",
+      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
+      "image": "/products/pdf-1-02.png",
+      "corporateColorIds": [
+        "green",
+        "white"
+      ],
+      "clothingSizeIds": [],
+      "printType": "silk-transfer, embroidery, dtf",
+      "brandingMethodIds": [
+        "silk-transfer",
+        "embroidery",
+        "dtf"
+      ],
+      "materialIds": [
+        "cotton",
+        "polyester"
+      ],
+      "cardSize": "large-vertical",
+      "backgroundColorId": "cream"
     },
     {
       "id": "pdf-1-03",
