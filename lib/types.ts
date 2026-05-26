@@ -18,6 +18,12 @@ export type User = {
   passwordHash: string;
   salt: string;
   createdAt: string;
+  githubToken?: EncryptedSecret;
+};
+
+export type EncryptedSecret = {
+  iv: string;
+  value: string;
 };
 
 export type Product = {

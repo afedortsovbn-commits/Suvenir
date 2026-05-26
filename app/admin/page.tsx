@@ -24,7 +24,7 @@ import publishedJson from "@/data/catalog.published.json";
 import usersJson from "@/data/users.json";
 import { ProductCard } from "@/components/ProductCard";
 import { cardSizeLabels, createEmptyProduct, hasUnpublishedChanges, normalizeProductOrder, sortCatalog, validateCatalog } from "@/lib/catalog";
-import { createUser, verifyPassword } from "@/lib/auth";
+import { createUser, decryptGitHubToken, encryptGitHubToken, verifyPassword } from "@/lib/auth";
 import { commitJson, createGitHubConfig, fetchRepositoryJson, repositoryConfig } from "@/lib/github";
 import type {
   BrandingMethod,
@@ -120,6 +120,31 @@ export default function AdminPage() {
     }
   }
 
+  async function replaceAccountToken(nextToken: string, password: string) {
+    if (!currentUser || currentUser.role !== "owner") return false;
+    if (!(await verifyPassword(password, currentUser))) {
+      setToast("Пароль владельца указан неверно.");
+      return false;
+    }
+    const updatedUser = {
+      ...currentUser,
+      githubToken: await encryptGitHubToken(nextToken.trim(), password, currentUser.salt)
+    };
+    const nextUsers = users.map((user) => (user.id === currentUser.id ? updatedUser : user));
+
+    try {
+      await commitJson(createGitHubConfig(nextToken.trim()), "data/users.json", nextUsers, "Обновить GitHub token владельца");
+      rememberToken(nextToken.trim());
+      setCurrentUser(updatedUser);
+      setUsers(nextUsers);
+      setToast("GitHub token сохранён в аккаунте владельца.");
+      return true;
+    } catch (error) {
+      setToast(error instanceof Error ? error.message : "Не удалось сохранить GitHub token в аккаунте.");
+      return false;
+    }
+  }
+
   async function saveDraft() {
     if (!token.trim()) {
       setToast("Введите GitHub token, чтобы сохранить черновик в репозитории.");
@@ -168,7 +193,8 @@ export default function AdminPage() {
         token={token}
         onToken={rememberToken}
         onUsers={persistUsers}
-        onLogin={(user) => {
+        onLogin={(user, savedToken) => {
+          if (savedToken) rememberToken(savedToken);
           setCurrentUser(user);
         }}
       />
@@ -291,7 +317,7 @@ export default function AdminPage() {
           {toast ? <div className="mb-5 rounded-lg border border-brand-100 bg-white px-4 py-3 text-sm font-semibold text-brand-700">{toast}</div> : null}
 
           {section === "access" && currentUser.role === "owner" ? (
-            <AccessAdmin users={users} currentUser={currentUser} tokenReady={Boolean(token.trim())} onToken={rememberToken} onUsers={persistUsers} />
+            <AccessAdmin users={users} currentUser={currentUser} tokenReady={Boolean(token.trim())} onReplaceToken={replaceAccountToken} onUsers={persistUsers} />
           ) : section === "products" ? (
             <ProductsAdmin draft={draft} onDraft={persistDraft} issues={validationIssues} />
           ) : section === "github" ? (
@@ -316,7 +342,7 @@ function LoginScreen({
   token: string;
   onToken: (token: string) => void;
   onUsers: (users: User[]) => Promise<boolean>;
-  onLogin: (user: User) => void;
+  onLogin: (user: User, savedToken?: string) => void;
 }) {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -334,7 +360,7 @@ function LoginScreen({
         setMessage("Введите GitHub token, чтобы создать первого owner в репозитории.");
         return;
       }
-      const owner = await createUser(login.trim(), password, "owner");
+      const owner = await createUser(login.trim(), password, "owner", token.trim());
       if (await onUsers([owner])) onLogin(owner);
       return;
     }
@@ -343,7 +369,13 @@ function LoginScreen({
       setMessage("Неверный логин или пароль.");
       return;
     }
-    onLogin(user);
+    try {
+      const savedToken = await decryptGitHubToken(user, password);
+      onLogin(user, savedToken);
+    } catch {
+      setMessage("Вход выполнен, но GitHub token не удалось расшифровать. Owner может заменить token в управлении доступом.");
+      onLogin(user);
+    }
   }
 
   return (
@@ -752,18 +784,19 @@ function AccessAdmin({
   users,
   currentUser,
   tokenReady,
-  onToken,
+  onReplaceToken,
   onUsers
 }: {
   users: User[];
   currentUser: User;
   tokenReady: boolean;
-  onToken: (token: string) => void;
+  onReplaceToken: (token: string, password: string) => Promise<boolean>;
   onUsers: (users: User[]) => Promise<boolean>;
 }) {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [replacementToken, setReplacementToken] = useState("");
+  const [ownerPassword, setOwnerPassword] = useState("");
   const [message, setMessage] = useState("");
 
   async function addUser(event: React.FormEvent) {
@@ -785,15 +818,21 @@ function AccessAdmin({
     }
   }
 
-  function replaceToken(event: React.FormEvent) {
+  async function replaceToken(event: React.FormEvent) {
     event.preventDefault();
     if (!replacementToken.trim()) {
       setMessage("Введите новый GitHub token.");
       return;
     }
-    onToken(replacementToken.trim());
-    setReplacementToken("");
-    setMessage("GitHub token заменён и сохранён в этом браузере.");
+    if (!ownerPassword) {
+      setMessage("Введите пароль владельца, чтобы зашифровать token в аккаунте.");
+      return;
+    }
+    if (await onReplaceToken(replacementToken.trim(), ownerPassword)) {
+      setReplacementToken("");
+      setOwnerPassword("");
+      setMessage("GitHub token заменён и сохранён в аккаунте владельца.");
+    }
   }
 
   return (
@@ -807,16 +846,23 @@ function AccessAdmin({
           <div>
             <h3 className="font-bold">GitHub token</h3>
             <p className="mt-1 text-sm text-[#42644d]">
-              {tokenReady ? "Token сохранён в этом браузере. Его значение не отображается." : "Token не сохранён в этом браузере. Без него нельзя сохранять и публиковать изменения."}
+              {tokenReady ? "Token доступен для сохранения. Его значение не отображается." : "Token не доступен. Введите новый token и пароль владельца, чтобы сохранить его в аккаунте."}
             </p>
           </div>
-          <form onSubmit={replaceToken} className="flex min-w-0 flex-col gap-2 sm:flex-row">
+          <form onSubmit={replaceToken} className="grid min-w-0 gap-2 sm:grid-cols-[minmax(180px,1fr)_minmax(160px,220px)_auto]">
             <input
               value={replacementToken}
               onChange={(event) => setReplacementToken(event.target.value)}
               type="password"
               placeholder="Новый GitHub token"
-              className="input min-w-0 sm:min-w-[260px]"
+              className="input min-w-0"
+            />
+            <input
+              value={ownerPassword}
+              onChange={(event) => setOwnerPassword(event.target.value)}
+              type="password"
+              placeholder="Пароль владельца"
+              className="input min-w-0"
             />
             <button type="submit" className="rounded-full bg-brand-700 px-5 py-3 font-bold text-white">Заменить</button>
           </form>
