@@ -41,6 +41,7 @@ import type {
 const initialDraft = sortCatalog(draftJson as CatalogData);
 const initialPublished = sortCatalog(publishedJson as CatalogData);
 const initialUsers = usersJson as User[];
+const tokenStorageKey = "suvenir.githubToken";
 
 type AdminSection = "access" | "products" | "categories" | "corporateColors" | "clothingSizes" | "materials" | "brandingMethods" | "cardBackgroundColors" | "github";
 type DirectoryKind = Exclude<AdminSection, "access" | "products" | "github">;
@@ -68,6 +69,10 @@ export default function AdminPage() {
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
+    setToken(localStorage.getItem(tokenStorageKey) ?? "");
+  }, []);
+
+  useEffect(() => {
     Promise.all([
       fetchRepositoryJson<CatalogData>("data/catalog.draft.json", initialDraft),
       fetchRepositoryJson<CatalogData>("data/catalog.published.json", initialPublished),
@@ -80,6 +85,16 @@ export default function AdminPage() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  function rememberToken(nextToken: string) {
+    setToken(nextToken);
+    const trimmed = nextToken.trim();
+    if (trimmed) {
+      localStorage.setItem(tokenStorageKey, trimmed);
+    } else {
+      localStorage.removeItem(tokenStorageKey);
+    }
+  }
 
   const validationIssues = useMemo(() => validateCatalog(draft), [draft]);
   const unpublished = hasUnpublishedChanges(draft, published);
@@ -151,7 +166,7 @@ export default function AdminPage() {
       <LoginScreen
         users={users}
         token={token}
-        onToken={setToken}
+        onToken={rememberToken}
         onUsers={persistUsers}
         onLogin={(user) => {
           setCurrentUser(user);
@@ -276,11 +291,11 @@ export default function AdminPage() {
           {toast ? <div className="mb-5 rounded-lg border border-brand-100 bg-white px-4 py-3 text-sm font-semibold text-brand-700">{toast}</div> : null}
 
           {section === "access" && currentUser.role === "owner" ? (
-            <AccessAdmin users={users} currentUser={currentUser} onUsers={persistUsers} />
+            <AccessAdmin users={users} currentUser={currentUser} tokenReady={Boolean(token.trim())} onToken={rememberToken} onUsers={persistUsers} />
           ) : section === "products" ? (
             <ProductsAdmin draft={draft} onDraft={persistDraft} issues={validationIssues} />
           ) : section === "github" ? (
-            <GitHubPanel token={token} onToken={setToken} />
+            <GitHubPanel token={token} />
           ) : (
             <DirectoryPanel kind={section as DirectoryKind} draft={draft} onDraft={persistDraft} />
           )}
@@ -341,16 +356,18 @@ function LoginScreen({
         <p className="mt-3 text-sm leading-6 text-[#42644d]">
           {isFirstUser ? "Первый зарегистрированный пользователь станет главным администратором и будет сохранён в GitHub." : "Введите логин и пароль сотрудника."}
         </p>
-        <label className="mt-6 block text-sm font-bold">
-          GitHub token {isFirstUser ? "*" : ""}
-          <input
-            value={token}
-            onChange={(event) => onToken(event.target.value)}
-            type="password"
-            className="mt-2 w-full rounded-lg border border-brand-100 px-4 py-3 outline-none focus:border-brand-500"
-            placeholder="Token с правом Contents: Read and write"
-          />
-        </label>
+        {isFirstUser ? (
+          <label className="mt-6 block text-sm font-bold">
+            GitHub token *
+            <input
+              value={token}
+              onChange={(event) => onToken(event.target.value)}
+              type="password"
+              className="mt-2 w-full rounded-lg border border-brand-100 px-4 py-3 outline-none focus:border-brand-500"
+              placeholder="Token с правом Contents: Read and write"
+            />
+          </label>
+        ) : null}
         <label className="mt-6 block text-sm font-bold">
           Логин *
           <input value={login} onChange={(event) => setLogin(event.target.value)} className="mt-2 w-full rounded-lg border border-brand-100 px-4 py-3 outline-none focus:border-brand-500" />
@@ -716,24 +733,37 @@ function DirectoryPanel({ kind, draft, onDraft }: { kind: DirectoryKind; draft: 
   );
 }
 
-function GitHubPanel({ token }: { token: string; onToken: (token: string) => void }) {
+function GitHubPanel({ token }: { token: string }) {
   return (
     <section className="max-w-3xl rounded-lg bg-white p-5 shadow-soft">
       <h2 className="text-2xl font-bold">GitHub</h2>
       <p className="mt-2 text-sm leading-6 text-[#42644d]">
         Данные читаются и сохраняются в репозитории {repositoryConfig.owner}/{repositoryConfig.repo}, ветка {repositoryConfig.branch}.
-        Token нужен только для записи и хранится в памяти открытой страницы. Значение token не отображается в админке.
+        Token нужен только для записи и хранится в браузере администратора. Значение token не отображается в админке.
       </p>
       <div className="mt-4 rounded-lg border border-brand-100 bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700">
-        {token.trim() ? "GitHub token введён при входе и готов для сохранения." : "GitHub token не введён. Выйдите и войдите снова с token, чтобы сохранять изменения."}
+        {token.trim() ? "GitHub token сохранён в этом браузере и готов для сохранения." : "GitHub token не сохранён. Owner может заменить token в разделе «Управление доступом»."}
       </div>
     </section>
   );
 }
 
-function AccessAdmin({ users, currentUser, onUsers }: { users: User[]; currentUser: User; onUsers: (users: User[]) => Promise<boolean> }) {
+function AccessAdmin({
+  users,
+  currentUser,
+  tokenReady,
+  onToken,
+  onUsers
+}: {
+  users: User[];
+  currentUser: User;
+  tokenReady: boolean;
+  onToken: (token: string) => void;
+  onUsers: (users: User[]) => Promise<boolean>;
+}) {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [replacementToken, setReplacementToken] = useState("");
   const [message, setMessage] = useState("");
 
   async function addUser(event: React.FormEvent) {
@@ -755,11 +785,42 @@ function AccessAdmin({ users, currentUser, onUsers }: { users: User[]; currentUs
     }
   }
 
+  function replaceToken(event: React.FormEvent) {
+    event.preventDefault();
+    if (!replacementToken.trim()) {
+      setMessage("Введите новый GitHub token.");
+      return;
+    }
+    onToken(replacementToken.trim());
+    setReplacementToken("");
+    setMessage("GitHub token заменён и сохранён в этом браузере.");
+  }
+
   return (
     <section className="rounded-lg bg-white p-5 shadow-soft">
       <div className="mb-6 flex items-center gap-3">
         <Shield className="text-brand-700" />
         <h2 className="text-2xl font-bold">Управление доступом</h2>
+      </div>
+      <div className="mb-6 rounded-lg border border-brand-100 bg-brand-50 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h3 className="font-bold">GitHub token</h3>
+            <p className="mt-1 text-sm text-[#42644d]">
+              {tokenReady ? "Token сохранён в этом браузере. Его значение не отображается." : "Token не сохранён в этом браузере. Без него нельзя сохранять и публиковать изменения."}
+            </p>
+          </div>
+          <form onSubmit={replaceToken} className="flex min-w-0 flex-col gap-2 sm:flex-row">
+            <input
+              value={replacementToken}
+              onChange={(event) => setReplacementToken(event.target.value)}
+              type="password"
+              placeholder="Новый GitHub token"
+              className="input min-w-0 sm:min-w-[260px]"
+            />
+            <button type="submit" className="rounded-full bg-brand-700 px-5 py-3 font-bold text-white">Заменить</button>
+          </form>
+        </div>
       </div>
       <form onSubmit={addUser} className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
         <input value={login} onChange={(event) => setLogin(event.target.value)} placeholder="Логин сотрудника" className="input" />
