@@ -1,6 +1,6 @@
 {
-  "version": 16,
-  "updatedAt": "2026-05-26T16:44:25.316Z",
+  "version": 19,
+  "updatedAt": "2026-05-26T17:04:56.251Z",
   "categories": [
     {
       "id": "merch",
@@ -30,30 +30,32 @@
   ],
   "products": [
     {
-      "id": "pdf-1-02",
+      "id": "pdf-1-04",
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
-      "title": "Бомбер",
-      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
-      "image": "/products/pdf-1-02.png",
+      "title": "Поло",
+      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
+      "image": "/products/pdf-1-04.png",
       "corporateColorIds": [
         "green",
         "white"
       ],
-      "clothingSizeIds": [],
-      "printType": "silk-transfer, embroidery, dtf",
+      "clothingSizeIds": [
+        "xxl-5xl"
+      ],
+      "printType": "silkscreen, silk-transfer, dtf, embroidery",
       "brandingMethodIds": [
+        "silkscreen",
         "silk-transfer",
-        "embroidery",
-        "dtf"
+        "dtf",
+        "embroidery"
       ],
       "materialIds": [
-        "cotton",
-        "polyester"
+        "cotton"
       ],
       "cardSize": "large-vertical",
-      "backgroundColorId": "cream"
+      "backgroundColorId": "mint"
     },
     {
       "id": "pdf-1-01",
@@ -106,32 +108,30 @@
       "backgroundColorId": "mint"
     },
     {
-      "id": "pdf-1-04",
+      "id": "pdf-1-02",
       "sectionId": "merch",
       "order": 4,
       "sku": "01.04",
-      "title": "Поло",
-      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
-      "image": "/products/pdf-1-04.png",
+      "title": "Бомбер",
+      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
+      "image": "/products/pdf-1-02.png",
       "corporateColorIds": [
         "green",
         "white"
       ],
-      "clothingSizeIds": [
-        "xxl-5xl"
-      ],
-      "printType": "silkscreen, silk-transfer, dtf, embroidery",
+      "clothingSizeIds": [],
+      "printType": "silk-transfer, embroidery, dtf",
       "brandingMethodIds": [
-        "silkscreen",
         "silk-transfer",
-        "dtf",
-        "embroidery"
+        "embroidery",
+        "dtf"
       ],
       "materialIds": [
-        "cotton"
+        "cotton",
+        "polyester"
       ],
       "cardSize": "large-vertical",
-      "backgroundColorId": "mint"
+      "backgroundColorId": "cream"
     },
     {
       "id": "pdf-1-05",
