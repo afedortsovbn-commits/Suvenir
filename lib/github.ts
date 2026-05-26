@@ -17,8 +17,43 @@ type GitHubFile = {
   message: string;
 };
 
+type GitHubErrorPayload = {
+  message?: string;
+};
+
 export function createGitHubConfig(token: string): GitHubConfig {
   return { ...repositoryConfig, token };
+}
+
+function encodeBase64(value: string) {
+  return btoa(unescape(encodeURIComponent(value)));
+}
+
+async function readGitHubError(response: Response) {
+  try {
+    const payload = (await response.json()) as GitHubErrorPayload;
+    return payload.message ?? response.statusText;
+  } catch {
+    return response.statusText;
+  }
+}
+
+async function gitHubRequest<T>(config: GitHubConfig, path: string, init: RequestInit = {}) {
+  const response = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${config.token}`,
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
+      ...(init.headers ?? {})
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(await readGitHubError(response));
+  }
+
+  return (await response.json()) as T;
 }
 
 export async function fetchRepositoryJson<T>(path: string, fallback: T): Promise<T> {
@@ -31,48 +66,58 @@ export async function fetchRepositoryJson<T>(path: string, fallback: T): Promise
   return (await response.json()) as T;
 }
 
-async function getFileSha(config: GitHubConfig, path: string) {
-  const response = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}?ref=${config.branch}`, {
-    headers: {
-      Authorization: `Bearer ${config.token}`,
-      Accept: "application/vnd.github+json"
-    }
-  });
-
-  if (response.status === 404) return undefined;
-  if (!response.ok) throw new Error("Не удалось получить текущую версию файла из GitHub");
-  const payload = (await response.json()) as { sha?: string };
-  return payload.sha;
-}
-
 export async function commitGitHubFile(config: GitHubConfig, file: GitHubFile) {
   let details = "";
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    const sha = await getFileSha(config, file.path);
-    const response = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/contents/${file.path}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${config.token}`,
-        Accept: "application/vnd.github+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: file.message,
-        branch: config.branch,
-        content: btoa(unescape(encodeURIComponent(file.content))),
-        sha
-      })
-    });
+    try {
+      const ref = await gitHubRequest<{ object: { sha: string } }>(config, `/git/ref/heads/${config.branch}`);
+      const head = await gitHubRequest<{ tree: { sha: string } }>(config, `/git/commits/${ref.object.sha}`);
+      const blob = await gitHubRequest<{ sha: string }>(config, "/git/blobs", {
+        method: "POST",
+        body: JSON.stringify({
+          content: encodeBase64(file.content),
+          encoding: "base64"
+        })
+      });
+      const tree = await gitHubRequest<{ sha: string }>(config, "/git/trees", {
+        method: "POST",
+        body: JSON.stringify({
+          base_tree: head.tree.sha,
+          tree: [
+            {
+              path: file.path,
+              mode: "100644",
+              type: "blob",
+              sha: blob.sha
+            }
+          ]
+        })
+      });
+      const commit = await gitHubRequest<{ sha: string }>(config, "/git/commits", {
+        method: "POST",
+        body: JSON.stringify({
+          message: file.message,
+          tree: tree.sha,
+          parents: [ref.object.sha]
+        })
+      });
 
-    if (response.ok) return;
-
-    details = await response.text();
-    if (response.status !== 409) break;
-    await new Promise((resolve) => setTimeout(resolve, 500 + attempt * 500));
+      await gitHubRequest(config, `/git/refs/heads/${config.branch}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          sha: commit.sha,
+          force: false
+        })
+      });
+      return;
+    } catch (error) {
+      details = error instanceof Error ? error.message : "неизвестная ошибка GitHub";
+      await new Promise((resolve) => setTimeout(resolve, 500 + attempt * 500));
+    }
   }
 
-  throw new Error(`GitHub не принял изменения: ${details}`);
+  throw new Error(`GitHub не принял изменения после повторных попыток: ${details}`);
 }
 
 export async function commitJson(config: GitHubConfig, path: string, data: unknown, message: string) {
