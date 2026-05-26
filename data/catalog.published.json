@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "updatedAt": "2026-05-25T03:44:52+00:00",
+  "version": 11,
+  "updatedAt": "2026-05-26T03:00:48.750Z",
   "categories": [
     {
       "id": "merch",
@@ -39,7 +39,9 @@
       "image": "/products/pdf-1-01.png",
       "corporateColorIds": [
         "green",
-        "white"
+        "white",
+        "black",
+        "gray"
       ],
       "clothingSizeIds": [],
       "printType": "embroidery, thermotransfer",
@@ -1444,6 +1446,21 @@
       "id": "kraft",
       "title": "Крафтовый",
       "hex": "#b48a62"
+    },
+    {
+      "id": "a58fe45c-2cfb-44f4-8016-f276df2c0194",
+      "title": "Новый элемент",
+      "hex": "#e7f0df"
+    },
+    {
+      "id": "a1cd7492-eef2-49cd-8a33-b4b2bebd205b",
+      "title": "Новый элемент",
+      "hex": "#e7f0df"
+    },
+    {
+      "id": "6f1ece4c-f08d-4adf-a56d-c05668d509b0",
+      "title": "Новый элемент",
+      "hex": "#e7f0df"
     }
   ],
   "clothingSizes": [
@@ -1471,6 +1488,11 @@
       "id": "xxl-5xl",
       "title": "XXL-5XL",
       "order": 5
+    },
+    {
+      "id": "1c68d50e-b57e-4912-b78c-d62053cb8d11",
+      "title": "Новый элемент",
+      "order": 6
     }
   ],
   "materials": [
@@ -1608,6 +1630,11 @@
       "id": "canvas",
       "title": "Холст",
       "order": 27
+    },
+    {
+      "id": "1a63dedb-4332-4acf-ae36-41529f95748a",
+      "title": "Новый элемент",
+      "order": 28
     }
   ],
   "brandingMethods": [
@@ -1725,6 +1752,11 @@
       "id": "milling",
       "title": "Фрезеровка",
       "order": 23
+    },
+    {
+      "id": "13d54d9f-e9bf-4c98-8211-782a0a27f94d",
+      "title": "Новый элемент",
+      "order": 24
     }
   ],
   "cardBackgroundColors": [
