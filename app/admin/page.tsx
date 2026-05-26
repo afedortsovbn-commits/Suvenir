@@ -414,6 +414,7 @@ function LoginScreen({
         <button type="submit" className="mt-6 w-full rounded-full bg-brand-700 px-5 py-3 font-bold text-white hover:bg-brand-900">
           {isFirstUser ? "Создать owner" : "Войти"}
         </button>
+        <div className="mt-4 text-center text-xs font-semibold text-[#6b806f]">Версия админки: {adminBuildVersion}</div>
       </form>
     </main>
   );
