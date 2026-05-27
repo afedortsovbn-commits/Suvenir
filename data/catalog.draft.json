@@ -1,6 +1,6 @@
 {
-  "version": 22,
-  "updatedAt": "2026-05-27T18:28:38.030Z",
+  "version": 23,
+  "updatedAt": "2026-05-27T18:31:15.604Z",
   "categories": [
     {
       "id": "merch",
@@ -30,10 +30,34 @@
   ],
   "products": [
     {
-      "id": "pdf-1-02",
+      "id": "pdf-1-03",
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
+      "title": "Бейсболка белая",
+      "description": "Лаконичная бейсболка с фирменным знаком.",
+      "image": "/products/pdf-1-03.png",
+      "corporateColorIds": [
+        "green",
+        "white"
+      ],
+      "clothingSizeIds": [],
+      "printType": "embroidery, thermotransfer",
+      "brandingMethodIds": [
+        "embroidery",
+        "thermotransfer"
+      ],
+      "materialIds": [
+        "cotton"
+      ],
+      "cardSize": "medium-square",
+      "backgroundColorId": "mint"
+    },
+    {
+      "id": "pdf-1-02",
+      "sectionId": "merch",
+      "order": 2,
+      "sku": "01.02",
       "title": "Бомбер",
       "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
       "image": "/products/pdf-1-02.png",
@@ -58,8 +82,8 @@
     {
       "id": "pdf-1-04",
       "sectionId": "merch",
-      "order": 2,
-      "sku": "01.02",
+      "order": 3,
+      "sku": "01.03",
       "title": "Поло",
       "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
       "image": "/products/pdf-1-04.png",
@@ -86,8 +110,8 @@
     {
       "id": "pdf-1-01",
       "sectionId": "merch",
-      "order": 3,
-      "sku": "01.03",
+      "order": 4,
+      "sku": "01.04",
       "title": "Бейсболка",
       "description": "Вышивка и термотрансфер. Материал: хлопок.",
       "image": "/products/pdf-1-01.png",
@@ -108,30 +132,6 @@
       ],
       "cardSize": "medium-horizontal",
       "backgroundColorId": "sage"
-    },
-    {
-      "id": "pdf-1-03",
-      "sectionId": "merch",
-      "order": 4,
-      "sku": "01.04",
-      "title": "Бейсболка белая",
-      "description": "Лаконичная бейсболка с фирменным знаком.",
-      "image": "/products/pdf-1-03.png",
-      "corporateColorIds": [
-        "green",
-        "white"
-      ],
-      "clothingSizeIds": [],
-      "printType": "embroidery, thermotransfer",
-      "brandingMethodIds": [
-        "embroidery",
-        "thermotransfer"
-      ],
-      "materialIds": [
-        "cotton"
-      ],
-      "cardSize": "medium-square",
-      "backgroundColorId": "mint"
     },
     {
       "id": "pdf-1-05",
