@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
+  ExternalLink,
   GripVertical,
   ImagePlus,
   KeyRound,
   LayoutGrid,
+  Loader2,
   LogOut,
   Plus,
   Save,
@@ -25,7 +27,8 @@ import usersJson from "@/data/users.json";
 import { ProductCard } from "@/components/ProductCard";
 import { cardSizeLabels, createEmptyProduct, hasUnpublishedChanges, normalizeProductOrder, sortCatalog, validateCatalog } from "@/lib/catalog";
 import { createUser, decryptGitHubToken, encryptGitHubToken, verifyPassword } from "@/lib/auth";
-import { commitJson, createGitHubConfig, fetchRepositoryJson, repositoryConfig } from "@/lib/github";
+import { commitJson, commitJsonFiles, createGitHubConfig, fetchRepositoryJson, repositoryConfig } from "@/lib/github";
+import { publicAsset } from "@/lib/paths";
 import type {
   BrandingMethod,
   CardBackgroundColor,
@@ -42,7 +45,7 @@ const initialDraft = sortCatalog(draftJson as CatalogData);
 const initialPublished = sortCatalog(publishedJson as CatalogData);
 const initialUsers = usersJson as User[];
 const tokenStorageKey = "suvenir.githubToken";
-const adminBuildVersion = "2026-05-26-ff-retry";
+const adminBuildVersion = "2026-05-27-publish-ui";
 
 type AdminSection = "access" | "products" | "categories" | "corporateColors" | "clothingSizes" | "materials" | "brandingMethods" | "cardBackgroundColors" | "github";
 type DirectoryKind = Exclude<AdminSection, "access" | "products" | "github">;
@@ -68,6 +71,7 @@ export default function AdminPage() {
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [operation, setOperation] = useState<"save" | "publish" | null>(null);
 
   useEffect(() => {
     setToken(localStorage.getItem(tokenStorageKey) ?? "");
@@ -151,6 +155,9 @@ export default function AdminPage() {
       setToast("Введите GitHub token, чтобы сохранить черновик в репозитории.");
       return;
     }
+    if (operation) return;
+    setOperation("save");
+    setToast("Сохраняем черновик в GitHub. Подождите, пожалуйста, не закрывайте страницу.");
     try {
       const nextDraft = sortCatalog(normalizeProductOrder(draft));
       await commitJson(createGitHubConfig(token.trim()), "data/catalog.draft.json", nextDraft, "Обновить черновик каталога");
@@ -158,6 +165,8 @@ export default function AdminPage() {
       setToast("Черновик сохранён в GitHub.");
     } catch (error) {
       setToast(error instanceof Error ? error.message : "Не удалось сохранить черновик в GitHub.");
+    } finally {
+      setOperation(null);
     }
   }
 
@@ -171,16 +180,31 @@ export default function AdminPage() {
       setToast("Введите GitHub token, чтобы опубликовать каталог в репозитории.");
       return;
     }
+    if (operation) return;
+    setOperation("publish");
+    setToast("Публикуем каталог в GitHub. Подождите, пожалуйста, это может занять несколько секунд.");
     try {
       const nextPublished = sortCatalog(normalizeProductOrder({ ...draft, updatedAt: new Date().toISOString(), version: draft.version + 1 }));
-      await commitJson(createGitHubConfig(token.trim()), "data/catalog.draft.json", nextPublished, "Обновить черновик каталога");
-      await commitJson(createGitHubConfig(token.trim()), "data/catalog.published.json", nextPublished, "Опубликовать каталог");
+      await commitJsonFiles(
+        createGitHubConfig(token.trim()),
+        [
+          { path: "data/catalog.draft.json", data: nextPublished },
+          { path: "data/catalog.published.json", data: nextPublished }
+        ],
+        "Опубликовать каталог"
+      );
       setDraft(nextPublished);
       setPublished(nextPublished);
       setToast("Каталог опубликован в GitHub. GitHub Pages обновится после сборки.");
     } catch (error) {
       setToast(error instanceof Error ? error.message : "Не удалось опубликовать каталог в GitHub.");
+    } finally {
+      setOperation(null);
     }
+  }
+
+  function openCatalog() {
+    window.open(`${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/?v=${Date.now()}`, "_blank", "noopener,noreferrer");
   }
 
   if (loading) {
@@ -305,18 +329,38 @@ export default function AdminPage() {
               ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={saveDraft} className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-2 font-semibold text-brand-700 hover:border-brand-500">
-                <Save size={18} />
-                Сохранить черновик
+              <button
+                type="button"
+                onClick={saveDraft}
+                disabled={Boolean(operation)}
+                className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-2 font-semibold text-brand-700 hover:border-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {operation === "save" ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                {operation === "save" ? "Сохраняем..." : "Сохранить черновик"}
               </button>
-              <button type="button" onClick={publish} className="inline-flex items-center gap-2 rounded-full bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-900">
-                <Upload size={18} />
-                Опубликовать
+              <button
+                type="button"
+                onClick={publish}
+                disabled={Boolean(operation)}
+                className="inline-flex items-center gap-2 rounded-full bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {operation === "publish" ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                {operation === "publish" ? "Публикуем..." : "Опубликовать"}
+              </button>
+              <button type="button" onClick={openCatalog} className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-2 font-semibold text-brand-700 hover:border-brand-500">
+                <ExternalLink size={18} />
+                Открыть каталог
               </button>
             </div>
           </header>
 
           {toast ? <div className="mb-5 rounded-lg border border-brand-100 bg-white px-4 py-3 text-sm font-semibold text-brand-700">{toast}</div> : null}
+          {operation ? (
+            <div className="mb-5 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
+              <Loader2 size={18} className="animate-spin" />
+              {operation === "save" ? "Идёт сохранение. Дождитесь завершения операции." : "Идёт публикация. Дождитесь завершения операции."}
+            </div>
+          ) : null}
 
           {section === "access" && currentUser.role === "owner" ? (
             <AccessAdmin users={users} currentUser={currentUser} tokenReady={Boolean(token.trim())} onReplaceToken={replaceAccountToken} onUsers={persistUsers} />
@@ -501,11 +545,23 @@ function ProductsAdmin({ draft, onDraft, issues }: { draft: CatalogData; onDraft
               return (
                 <SortableRow key={product.id} id={product.id} danger={currentIssues.length > 0}>
                   <button type="button" onClick={() => setEditingProduct(product)} className="min-w-0 flex-1 rounded-lg px-3 py-2 text-left hover:bg-white/70">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-bold">№ {product.sku || "—"}</span>
-                      <span className="truncate font-semibold">{product.title || "Новая позиция"}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-brand-100 bg-white">
+                        {product.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={publicAsset(product.image)} alt={product.title || "Позиция"} className="h-full w-full object-contain" />
+                        ) : (
+                          <ImagePlus size={18} className="text-[#9aab9e]" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-bold">№ {product.sku || "—"}</span>
+                          <span className="truncate font-semibold">{product.title || "Новая позиция"}</span>
+                        </div>
+                        <div className="mt-1 text-xs text-[#42644d]">{product.description ? product.description.slice(0, 90) : "Описание не заполнено"}</div>
+                      </div>
                     </div>
-                    <div className="mt-1 text-xs text-[#42644d]">{draft.categories.find((category) => category.id === product.sectionId)?.title || "Раздел не выбран"}</div>
                     {currentIssues.length ? (
                       <div className="mt-2 text-xs font-semibold text-red-700">{currentIssues.map((issue) => issue.message).join("; ")}</div>
                     ) : null}

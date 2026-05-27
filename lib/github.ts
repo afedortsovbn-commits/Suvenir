@@ -76,37 +76,44 @@ export async function fetchRepositoryJson<T>(path: string, fallback: T): Promise
 }
 
 export async function commitGitHubFile(config: GitHubConfig, file: GitHubFile) {
+  await commitGitHubFiles(config, [file], file.message);
+}
+
+export async function commitGitHubFiles(config: GitHubConfig, files: GitHubFile[], message: string) {
   let details = "";
 
-  for (let attempt = 0; attempt < 8; attempt += 1) {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
     try {
       const ref = await gitHubRequest<{ object: { sha: string } }>(config, `/git/ref/heads/${config.branch}`);
       const head = await gitHubRequest<{ tree: { sha: string } }>(config, `/git/commits/${ref.object.sha}`);
-      const blob = await gitHubRequest<{ sha: string }>(config, "/git/blobs", {
-        method: "POST",
-        body: JSON.stringify({
-          content: encodeBase64(file.content),
-          encoding: "base64"
+      const treeItems = await Promise.all(
+        files.map(async (file) => {
+          const blob = await gitHubRequest<{ sha: string }>(config, "/git/blobs", {
+            method: "POST",
+            body: JSON.stringify({
+              content: encodeBase64(file.content),
+              encoding: "base64"
+            })
+          });
+          return {
+            path: file.path,
+            mode: "100644",
+            type: "blob",
+            sha: blob.sha
+          };
         })
-      });
+      );
       const tree = await gitHubRequest<{ sha: string }>(config, "/git/trees", {
         method: "POST",
         body: JSON.stringify({
           base_tree: head.tree.sha,
-          tree: [
-            {
-              path: file.path,
-              mode: "100644",
-              type: "blob",
-              sha: blob.sha
-            }
-          ]
+          tree: treeItems
         })
       });
       const commit = await gitHubRequest<{ sha: string }>(config, "/git/commits", {
         method: "POST",
         body: JSON.stringify({
-          message: file.message,
+          message,
           tree: tree.sha,
           parents: [ref.object.sha]
         })
@@ -124,7 +131,7 @@ export async function commitGitHubFile(config: GitHubConfig, file: GitHubFile) {
       details = error instanceof Error ? error.message : "неизвестная ошибка GitHub";
       const canRetry = error instanceof GitHubRequestError ? [409, 422].includes(error.status) : true;
       if (!canRetry) break;
-      await new Promise((resolve) => setTimeout(resolve, 700 + attempt * 700));
+      await new Promise((resolve) => setTimeout(resolve, 1000 + attempt * 1000));
     }
   }
 
@@ -137,4 +144,16 @@ export async function commitJson(config: GitHubConfig, path: string, data: unkno
     message,
     content: `${JSON.stringify(data, null, 2)}\n`
   });
+}
+
+export async function commitJsonFiles(config: GitHubConfig, files: Array<{ path: string; data: unknown }>, message: string) {
+  await commitGitHubFiles(
+    config,
+    files.map((file) => ({
+      path: file.path,
+      message,
+      content: `${JSON.stringify(file.data, null, 2)}\n`
+    })),
+    message
+  );
 }
