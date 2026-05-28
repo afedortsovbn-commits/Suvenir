@@ -50,6 +50,16 @@ export function sortCatalog(data: CatalogData) {
   };
 }
 
+function catalogUpdatedAtTime(data: CatalogData) {
+  const time = Date.parse(data.updatedAt);
+  return Number.isFinite(time) ? time : 0;
+}
+
+export function isCatalogAtLeastAsFresh(next: CatalogData, current: CatalogData) {
+  if (next.version !== current.version) return next.version >= current.version;
+  return catalogUpdatedAtTime(next) >= catalogUpdatedAtTime(current);
+}
+
 export function formatProductSku(categoryIndex: number, productIndex: number) {
   return `${String(categoryIndex + 1).padStart(2, "0")}.${String(productIndex + 1).padStart(2, "0")}`;
 }

@@ -66,13 +66,21 @@ async function gitHubRequest<T>(config: GitHubConfig, path: string, init: Reques
 }
 
 export async function fetchRepositoryJson<T>(path: string, fallback: T): Promise<T> {
-  const response = await fetch(
-    `https://raw.githubusercontent.com/${repositoryConfig.owner}/${repositoryConfig.repo}/${repositoryConfig.branch}/${path}?v=${Date.now()}`,
-    { cache: "no-store" }
-  );
+  return (await fetchRepositoryJsonResult(path, fallback)).data;
+}
 
-  if (!response.ok) return fallback;
-  return (await response.json()) as T;
+export async function fetchRepositoryJsonResult<T>(path: string, fallback: T): Promise<{ data: T; ok: boolean }> {
+  try {
+    const response = await fetch(
+      `https://raw.githubusercontent.com/${repositoryConfig.owner}/${repositoryConfig.repo}/${repositoryConfig.branch}/${path}?v=${Date.now()}`,
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) return { data: fallback, ok: false };
+    return { data: (await response.json()) as T, ok: true };
+  } catch {
+    return { data: fallback, ok: false };
+  }
 }
 
 export async function commitGitHubFile(config: GitHubConfig, file: GitHubFile) {

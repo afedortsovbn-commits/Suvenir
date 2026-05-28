@@ -26,9 +26,9 @@ import draftJson from "@/data/catalog.draft.json";
 import publishedJson from "@/data/catalog.published.json";
 import usersJson from "@/data/users.json";
 import { ProductCard } from "@/components/ProductCard";
-import { cardSizeLabels, createEmptyProduct, hasUnpublishedChanges, normalizeProductOrder, sortCatalog, validateCatalog } from "@/lib/catalog";
+import { cardSizeLabels, createEmptyProduct, hasUnpublishedChanges, isCatalogAtLeastAsFresh, normalizeProductOrder, sortCatalog, validateCatalog } from "@/lib/catalog";
 import { createUser, decryptGitHubToken, encryptGitHubToken, verifyPassword } from "@/lib/auth";
-import { commitJson, commitJsonFiles, createGitHubConfig, fetchRepositoryJson, repositoryConfig } from "@/lib/github";
+import { commitJson, commitJsonFiles, createGitHubConfig, fetchRepositoryJsonResult, repositoryConfig } from "@/lib/github";
 import { publicAsset } from "@/lib/paths";
 import type {
   BrandingMethod,
@@ -46,7 +46,7 @@ const initialDraft = sortCatalog(draftJson as CatalogData);
 const initialPublished = sortCatalog(publishedJson as CatalogData);
 const initialUsers = usersJson as User[];
 const tokenStorageKey = "suvenir.githubToken";
-const adminBuildVersion = "2026-05-28-mobile-menu";
+const adminBuildVersion = "2026-05-28-stability";
 
 type AdminSection = "access" | "products" | "categories" | "corporateColors" | "clothingSizes" | "materials" | "brandingMethods" | "cardBackgroundColors" | "github";
 type DirectoryKind = Exclude<AdminSection, "access" | "products" | "github">;
@@ -81,14 +81,22 @@ export default function AdminPage() {
 
   useEffect(() => {
     Promise.all([
-      fetchRepositoryJson<CatalogData>("data/catalog.draft.json", initialDraft),
-      fetchRepositoryJson<CatalogData>("data/catalog.published.json", initialPublished),
-      fetchRepositoryJson<User[]>("data/users.json", initialUsers)
+      fetchRepositoryJsonResult<CatalogData>("data/catalog.draft.json", initialDraft),
+      fetchRepositoryJsonResult<CatalogData>("data/catalog.published.json", initialPublished),
+      fetchRepositoryJsonResult<User[]>("data/users.json", initialUsers)
     ])
       .then(([remoteDraft, remotePublished, remoteUsers]) => {
-        setDraft(sortCatalog(remoteDraft));
-        setPublished(sortCatalog(remotePublished));
-        setUsers(remoteUsers);
+        if (remoteDraft.ok) {
+          const sortedDraft = sortCatalog(remoteDraft.data);
+          setDraft((current) => (isCatalogAtLeastAsFresh(sortedDraft, current) ? sortedDraft : current));
+        }
+        if (remotePublished.ok) {
+          const sortedPublished = sortCatalog(remotePublished.data);
+          setPublished((current) => (isCatalogAtLeastAsFresh(sortedPublished, current) ? sortedPublished : current));
+        }
+        if (remoteUsers.ok) {
+          setUsers((current) => (remoteUsers.data.length || !current.length ? remoteUsers.data : current));
+        }
       })
       .finally(() => setLoading(false));
   }, []);

@@ -6,7 +6,7 @@ import { ArrowUp, X } from "lucide-react";
 import publishedCatalog from "@/data/catalog.published.json";
 import { ProductCard } from "@/components/ProductCard";
 import { PdfExport } from "@/components/PdfExport";
-import { sortCatalog } from "@/lib/catalog";
+import { isCatalogAtLeastAsFresh, sortCatalog } from "@/lib/catalog";
 import { fetchRepositoryJson } from "@/lib/github";
 import { publicAsset } from "@/lib/paths";
 import type { CatalogData } from "@/lib/types";
@@ -22,8 +22,13 @@ export default function CatalogPage() {
   useEffect(() => {
     fetchRepositoryJson<CatalogData>("data/catalog.published.json", fallbackCatalog).then((data) => {
       const sorted = sortCatalog(data);
+      if (!isCatalogAtLeastAsFresh(sorted, fallbackCatalog)) return;
       setCatalog(sorted);
-      setSelectedCategoryIds(sorted.categories.map((category) => category.id));
+      setSelectedCategoryIds((current) => {
+        const categoryIds = sorted.categories.map((category) => category.id);
+        const selected = current.filter((id) => categoryIds.includes(id));
+        return current.length === fallbackCatalog.categories.length || !selected.length ? categoryIds : selected;
+      });
     });
   }, []);
 
