@@ -1,6 +1,6 @@
 {
-  "version": 35,
-  "updatedAt": "2026-05-28T16:23:48.537Z",
+  "version": 36,
+  "updatedAt": "2026-05-28T16:52:16.323Z",
   "categories": [
     {
       "id": "merch",
@@ -34,7 +34,7 @@
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
-      "title": "Бейсболка белая7",
+      "title": "Бейсболка белая8",
       "description": "Лаконичная бейсболка с фирменным знаком.",
       "image": "/products/pdf-1-03.png",
       "corporateColorIds": [
