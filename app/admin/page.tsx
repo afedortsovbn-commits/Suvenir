@@ -12,6 +12,7 @@ import {
   LogOut,
   Plus,
   Save,
+  Send,
   Shield,
   Trash2,
   Upload,
@@ -45,7 +46,7 @@ const initialDraft = sortCatalog(draftJson as CatalogData);
 const initialPublished = sortCatalog(publishedJson as CatalogData);
 const initialUsers = usersJson as User[];
 const tokenStorageKey = "suvenir.githubToken";
-const adminBuildVersion = "2026-05-27-publish-ui";
+const adminBuildVersion = "2026-05-28-mobile-menu";
 
 type AdminSection = "access" | "products" | "categories" | "corporateColors" | "clothingSizes" | "materials" | "brandingMethods" | "cardBackgroundColors" | "github";
 type DirectoryKind = Exclude<AdminSection, "access" | "products" | "github">;
@@ -71,6 +72,7 @@ export default function AdminPage() {
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [catalogMenuOpen, setCatalogMenuOpen] = useState(false);
   const [operation, setOperation] = useState<"save" | "publish" | null>(null);
 
   useEffect(() => {
@@ -237,11 +239,11 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={() => setProfileOpen((value) => !value)}
-              className="flex w-full items-center justify-between rounded-lg bg-brand-50 px-4 py-3 text-left transition hover:bg-[#e8f4ea]"
+              className="flex w-full items-center justify-between rounded-lg bg-brand-50 px-3 py-2 text-left transition hover:bg-[#e8f4ea] lg:px-4 lg:py-3"
             >
-              <span>
-                <span className="block font-bold">{currentUser.login}</span>
-                <span className="block text-sm text-[#42644d]">Роль: {currentUser.role === "owner" ? "owner" : "editor"}</span>
+              <span className="min-w-0 lg:block">
+                <span className="truncate font-bold lg:block">{currentUser.login}</span>
+                <span className="ml-2 text-sm text-[#42644d] lg:ml-0 lg:block">Роль: {currentUser.role === "owner" ? "owner" : "editor"}</span>
               </span>
               <ChevronDown size={18} className={profileOpen ? "rotate-180 transition" : "transition"} />
             </button>
@@ -263,6 +265,17 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => {
+                    setSection("github");
+                    setProfileOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#42644d] hover:bg-brand-50"
+                >
+                  <ExternalLink size={17} />
+                  GitHub storage
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
                     setCurrentUser(null);
                   }}
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#42644d] hover:bg-brand-50"
@@ -274,17 +287,53 @@ export default function AdminPage() {
             ) : null}
           </div>
 
+          <div className="mb-4 grid grid-cols-3 gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={saveDraft}
+              disabled={Boolean(operation)}
+              className="flex h-11 items-center justify-center rounded-lg border border-brand-100 bg-white text-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+              aria-label="Сохранить"
+              title="Сохранить"
+            >
+              {operation === "save" ? <Loader2 size={19} className="animate-spin" /> : <Save size={19} />}
+            </button>
+            <button
+              type="button"
+              onClick={publish}
+              disabled={Boolean(operation)}
+              className="flex h-11 items-center justify-center rounded-lg bg-brand-700 text-white disabled:cursor-not-allowed disabled:opacity-60"
+              aria-label="Опубликовать"
+              title="Опубликовать"
+            >
+              {operation === "publish" ? <Loader2 size={19} className="animate-spin" /> : <Upload size={19} />}
+            </button>
+            <button
+              type="button"
+              onClick={openCatalog}
+              className="flex h-11 items-center justify-center rounded-lg border border-brand-100 bg-white text-brand-700"
+              aria-label="Открыть каталог"
+              title="Открыть каталог"
+            >
+              <ExternalLink size={19} />
+            </button>
+          </div>
+
           <nav className="space-y-2">
             <button
               type="button"
-              onClick={() => setSection("products")}
+              onClick={() => {
+                setSection("products");
+                setCatalogMenuOpen((value) => !value);
+              }}
               className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-semibold ${section === "products" ? "bg-brand-700 text-white" : "hover:bg-brand-50"}`}
             >
               <LayoutGrid size={19} />
-              Сувенирная продукция
+              <span className="min-w-0 flex-1">Сувенирная продукция</span>
+              <ChevronDown size={17} className={`${catalogMenuOpen ? "rotate-180" : ""} transition lg:hidden`} />
             </button>
 
-            <div className="my-4 border-y border-brand-100 py-4">
+            <div className={`${catalogMenuOpen ? "block" : "hidden"} my-4 border-y border-brand-100 py-4 lg:block`}>
               <div className="space-y-1">
                 {catalogSections.filter((item) => item.id !== "products" && item.id !== "github").map((item) => (
                   <button
@@ -300,19 +349,6 @@ export default function AdminPage() {
                 ))}
               </div>
             </div>
-
-            {catalogSections.filter((item) => item.id === "github").map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setSection(item.id)}
-                  className={`w-full rounded-lg px-4 py-2 text-left text-sm font-semibold ${
-                    section === item.id ? "bg-brand-50 text-brand-700" : "text-[#42644d] hover:bg-[#f7f8f3]"
-                  }`}
-                >
-                  {item.label}
-                </button>
-            ))}
           </nav>
         </aside>
 
@@ -328,7 +364,7 @@ export default function AdminPage() {
                 </p>
               ) : null}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="hidden flex-wrap gap-2 lg:flex">
               <button
                 type="button"
                 onClick={saveDraft}
@@ -336,7 +372,7 @@ export default function AdminPage() {
                 className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-4 py-2 font-semibold text-brand-700 hover:border-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {operation === "save" ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                {operation === "save" ? "Сохраняем..." : "Сохранить черновик"}
+                {operation === "save" ? "Сохраняем..." : "Сохранить"}
               </button>
               <button
                 type="button"
@@ -434,6 +470,15 @@ function LoginScreen({
         <p className="mt-3 text-sm leading-6 text-[#42644d]">
           {isFirstUser ? "Первый зарегистрированный пользователь станет главным администратором и будет сохранён в GitHub." : "Введите логин и пароль сотрудника."}
         </p>
+        <a
+          href="https://t.me/Alex_Fedortsov"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-sm font-bold text-brand-700 hover:border-brand-500"
+        >
+          <Send size={16} />
+          Доступ по запросу @Alex_Fedortsov
+        </a>
         {isFirstUser ? (
           <label className="mt-6 block text-sm font-bold">
             GitHub token *
@@ -907,6 +952,15 @@ function AccessAdmin({
             <p className="mt-1 text-sm text-[#42644d]">
               {tokenReady ? "Token доступен для сохранения. Его значение не отображается." : "Token не доступен. Введите новый token и пароль владельца, чтобы сохранить его в аккаунте."}
             </p>
+            <a
+              href="https://t.me/Alex_Fedortsov"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-brand-700 hover:text-brand-900"
+            >
+              <Send size={15} />
+              Доступ по запросу @Alex_Fedortsov
+            </a>
           </div>
           <form onSubmit={replaceToken} className="grid min-w-0 gap-2 sm:grid-cols-[minmax(180px,1fr)_minmax(160px,220px)_auto]">
             <input

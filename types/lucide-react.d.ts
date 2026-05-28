@@ -19,6 +19,7 @@ declare module "lucide-react" {
   export const LogOut: FC<IconProps>;
   export const Plus: FC<IconProps>;
   export const Save: FC<IconProps>;
+  export const Send: FC<IconProps>;
   export const Shield: FC<IconProps>;
   export const Square: FC<IconProps>;
   export const Trash2: FC<IconProps>;
