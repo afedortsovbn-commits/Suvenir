@@ -10,5 +10,13 @@
       "iv": "I6x/hZnQ7aXi8m6+",
       "value": "F/OGTwchi9zwwkRxzKbPkcA0eSQb2xTUxxFozEL7H0ylDKREfM4yykKKTGxencwEdgi06pbIpAGCDdLd8CCyxJ5cVt7e5LLkO7+P7DEUrHz3hHriCldJ6aM9HuwoVX14BIT9mSqkvgYmMUERpw=="
     }
+  },
+  {
+    "id": "6c33c8ac-a308-48b9-abfb-fb19e0f8f7d2",
+    "login": "Denis",
+    "role": "editor",
+    "passwordHash": "ymqIvhCWcCMPwpPh8tGmaWwLPJuGjAQ19i3sIuGwzYE=",
+    "salt": "sdTidFwzC7UvXufb+hQgeA==",
+    "createdAt": "2026-05-28T02:59:32.094Z"
   }
 ]
