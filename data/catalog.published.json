@@ -1,6 +1,6 @@
 {
-  "version": 175,
-  "updatedAt": "2026-06-01T09:42:13.660Z",
+  "version": 177,
+  "updatedAt": "2026-06-01T10:36:49.360Z",
   "categories": [
     {
       "id": "merch",
@@ -30,40 +30,10 @@
   ],
   "products": [
     {
-      "id": "pdf-1-04",
+      "id": "pdf-1-02",
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
-      "title": "Поло",
-      "description": "Текстовое описание",
-      "image": "/products/pdf-1-04.png",
-      "corporateColorIds": [
-        "green",
-        "white",
-        "6f1ece4c-f08d-4adf-a56d-c05668d509b0"
-      ],
-      "clothingSizeIds": [
-        "xl",
-        "l"
-      ],
-      "printType": "silkscreen, silk-transfer, dtf, embroidery",
-      "brandingMethodIds": [
-        "silk-transfer",
-        "silkscreen",
-        "dtf"
-      ],
-      "materialIds": [
-        "pongee",
-        "plastic"
-      ],
-      "cardSize": "large-vertical",
-      "backgroundColorId": "mint"
-    },
-    {
-      "id": "pdf-1-02",
-      "sectionId": "merch",
-      "order": 2,
-      "sku": "01.02",
       "title": "Бомбер",
       "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
       "image": "/products/pdf-1-02.png",
@@ -91,6 +61,36 @@
       ],
       "cardSize": "large-horizontal",
       "backgroundColorId": "rose"
+    },
+    {
+      "id": "pdf-1-04",
+      "sectionId": "merch",
+      "order": 2,
+      "sku": "01.02",
+      "title": "Поло",
+      "description": "Текстовое описание",
+      "image": "/products/pdf-1-04.png",
+      "corporateColorIds": [
+        "green",
+        "white",
+        "6f1ece4c-f08d-4adf-a56d-c05668d509b0"
+      ],
+      "clothingSizeIds": [
+        "xl",
+        "l"
+      ],
+      "printType": "silkscreen, silk-transfer, dtf, embroidery",
+      "brandingMethodIds": [
+        "silk-transfer",
+        "silkscreen",
+        "dtf"
+      ],
+      "materialIds": [
+        "pongee",
+        "plastic"
+      ],
+      "cardSize": "large-vertical",
+      "backgroundColorId": "mint"
     },
     {
       "id": "pdf-1-03",
