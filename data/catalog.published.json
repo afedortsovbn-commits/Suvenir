@@ -1,6 +1,6 @@
 {
-  "version": 40,
-  "updatedAt": "2026-06-01T06:55:36.861Z",
+  "version": 42,
+  "updatedAt": "2026-06-01T06:58:13.561Z",
   "categories": [
     {
       "id": "merch",
@@ -30,10 +30,38 @@
   ],
   "products": [
     {
-      "id": "pdf-1-02",
+      "id": "pdf-1-04",
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
+      "title": "Поло",
+      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
+      "image": "/products/pdf-1-04.png",
+      "corporateColorIds": [
+        "green",
+        "white"
+      ],
+      "clothingSizeIds": [
+        "xxl-5xl"
+      ],
+      "printType": "silkscreen, silk-transfer, dtf, embroidery",
+      "brandingMethodIds": [
+        "silkscreen",
+        "silk-transfer",
+        "dtf",
+        "embroidery"
+      ],
+      "materialIds": [
+        "cotton"
+      ],
+      "cardSize": "large-vertical",
+      "backgroundColorId": "mint"
+    },
+    {
+      "id": "pdf-1-02",
+      "sectionId": "merch",
+      "order": 2,
+      "sku": "01.02",
       "title": "Бомбер",
       "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
       "image": "/products/pdf-1-02.png",
@@ -65,8 +93,8 @@
     {
       "id": "pdf-1-03",
       "sectionId": "merch",
-      "order": 2,
-      "sku": "01.02",
+      "order": 3,
+      "sku": "01.03",
       "title": "Бейсболка белая8",
       "description": "Лаконичная бейсболка с фирменным знаком.",
       "image": "/products/pdf-1-03.png",
@@ -84,34 +112,6 @@
         "cotton"
       ],
       "cardSize": "medium-square",
-      "backgroundColorId": "mint"
-    },
-    {
-      "id": "pdf-1-04",
-      "sectionId": "merch",
-      "order": 3,
-      "sku": "01.03",
-      "title": "Поло",
-      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
-      "image": "/products/pdf-1-04.png",
-      "corporateColorIds": [
-        "green",
-        "white"
-      ],
-      "clothingSizeIds": [
-        "xxl-5xl"
-      ],
-      "printType": "silkscreen, silk-transfer, dtf, embroidery",
-      "brandingMethodIds": [
-        "silkscreen",
-        "silk-transfer",
-        "dtf",
-        "embroidery"
-      ],
-      "materialIds": [
-        "cotton"
-      ],
-      "cardSize": "large-vertical",
       "backgroundColorId": "mint"
     },
     {
