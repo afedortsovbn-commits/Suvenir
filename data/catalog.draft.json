@@ -1,6 +1,6 @@
 {
-  "version": 37,
-  "updatedAt": "2026-05-28T16:52:26.229Z",
+  "version": 40,
+  "updatedAt": "2026-06-01T06:55:36.861Z",
   "categories": [
     {
       "id": "merch",
@@ -30,10 +30,43 @@
   ],
   "products": [
     {
-      "id": "pdf-1-03",
+      "id": "pdf-1-02",
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
+      "title": "Бомбер",
+      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
+      "image": "/products/pdf-1-02.png",
+      "corporateColorIds": [
+        "green",
+        "white",
+        "cream",
+        "kraft"
+      ],
+      "clothingSizeIds": [
+        "l",
+        "xl"
+      ],
+      "printType": "silk-transfer, embroidery, dtf",
+      "brandingMethodIds": [
+        "silk-transfer",
+        "embroidery",
+        "dtf"
+      ],
+      "materialIds": [
+        "cotton",
+        "polyester",
+        "leather",
+        "polyurethane"
+      ],
+      "cardSize": "large-horizontal",
+      "backgroundColorId": "rose"
+    },
+    {
+      "id": "pdf-1-03",
+      "sectionId": "merch",
+      "order": 2,
+      "sku": "01.02",
       "title": "Бейсболка белая8",
       "description": "Лаконичная бейсболка с фирменным знаком.",
       "image": "/products/pdf-1-03.png",
@@ -52,32 +85,6 @@
       ],
       "cardSize": "medium-square",
       "backgroundColorId": "mint"
-    },
-    {
-      "id": "pdf-1-02",
-      "sectionId": "merch",
-      "order": 2,
-      "sku": "01.02",
-      "title": "Бомбер",
-      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
-      "image": "/products/pdf-1-02.png",
-      "corporateColorIds": [
-        "green",
-        "white"
-      ],
-      "clothingSizeIds": [],
-      "printType": "silk-transfer, embroidery, dtf",
-      "brandingMethodIds": [
-        "silk-transfer",
-        "embroidery",
-        "dtf"
-      ],
-      "materialIds": [
-        "cotton",
-        "polyester"
-      ],
-      "cardSize": "large-vertical",
-      "backgroundColorId": "cream"
     },
     {
       "id": "pdf-1-04",
