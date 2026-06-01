@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
   ExternalLink,
@@ -83,6 +83,7 @@ export default function AdminPage() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [catalogMenuOpen, setCatalogMenuOpen] = useState(false);
   const [operation, setOperation] = useState<"save" | "publish" | null>(null);
+  const contentRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     setToken(localStorage.getItem(tokenStorageKey) ?? "");
@@ -230,6 +231,18 @@ export default function AdminPage() {
     window.open(`${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/?v=${Date.now()}`, "_blank", "noopener,noreferrer");
   }
 
+  function scrollToContentOnMobile() {
+    if (window.innerWidth >= 1024) return;
+    contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function openAdminSection(nextSection: AdminSection, collapseCatalogMenu = false) {
+    setSection(nextSection);
+    setProfileOpen(false);
+    if (collapseCatalogMenu) setCatalogMenuOpen(false);
+    requestAnimationFrame(scrollToContentOnMobile);
+  }
+
   function menuItemClass(active: boolean) {
     return `flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${
       active ? "bg-brand-700 text-white" : "text-[#42644d] hover:bg-brand-50"
@@ -280,8 +293,7 @@ export default function AdminPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setSection("access");
-                      setProfileOpen(false);
+                      openAdminSection("access");
                     }}
                     className={menuItemClass(section === "access")}
                   >
@@ -292,8 +304,7 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setSection("github");
-                    setProfileOpen(false);
+                    openAdminSection("github");
                   }}
                   className={menuItemClass(section === "github")}
                 >
@@ -353,6 +364,7 @@ export default function AdminPage() {
               onClick={() => {
                 setSection("products");
                 setCatalogMenuOpen((value) => !value);
+                requestAnimationFrame(scrollToContentOnMobile);
               }}
               className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-semibold ${section === "products" ? "bg-brand-700 text-white" : "hover:bg-brand-50"}`}
             >
@@ -367,7 +379,7 @@ export default function AdminPage() {
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => setSection(item.id)}
+                    onClick={() => openAdminSection(item.id, true)}
                     className={`w-full rounded-lg px-4 py-2 text-left text-sm font-semibold ${
                       section === item.id ? "bg-brand-700 text-white" : "text-[#42644d] hover:bg-[#f7f8f3]"
                     }`}
@@ -380,7 +392,7 @@ export default function AdminPage() {
           </nav>
         </aside>
 
-        <section className="min-w-0 p-4 sm:p-6 lg:h-screen lg:overflow-y-auto lg:p-8">
+        <section ref={contentRef} className="min-w-0 scroll-mt-4 p-4 sm:p-6 lg:h-screen lg:overflow-y-auto lg:p-8">
           <header className="mb-6 flex flex-col gap-4 rounded-lg bg-white p-4 shadow-soft xl:flex-row xl:items-center xl:justify-between">
             <div>
               <div className={`inline-flex rounded-full px-3 py-1 text-sm font-bold ${unpublished ? "bg-amber-100 text-amber-800" : "bg-brand-50 text-brand-700"}`}>
