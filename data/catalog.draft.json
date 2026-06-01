@@ -1,6 +1,6 @@
 {
-  "version": 106,
-  "updatedAt": "2026-06-01T07:04:16.214Z",
+  "version": 122,
+  "updatedAt": "2026-06-01T07:04:51.150Z",
   "categories": [
     {
       "id": "merch",
@@ -1497,8 +1497,8 @@
       "order": 5
     },
     {
-      "id": "1c68d50e-b57e-4912-b78c-d62053cb8d11",
-      "title": "Новый элемент",
+      "id": "70ced736-3853-4934-94ab-c3c7adff4530",
+      "title": "Тест",
       "order": 6
     }
   ],
