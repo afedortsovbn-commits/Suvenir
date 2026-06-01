@@ -120,22 +120,18 @@ export default function CatalogPage() {
       </button>
 
       {openedProduct ? (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-[#f7f8f3] p-4 sm:p-6">
-          <div className="mx-auto flex min-h-full max-w-6xl flex-col">
-            <div className="mb-4 flex justify-end">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/30 p-4 backdrop-blur-sm sm:p-6">
+          <div className="mx-auto flex min-h-full max-w-6xl items-center justify-center">
+            <div className="relative w-full">
               <button
                 type="button"
                 onClick={() => setOpenedProductId(null)}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#42644d] shadow-soft hover:bg-brand-50"
+                className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#42644d] shadow-soft hover:bg-brand-50"
                 aria-label="Закрыть"
               >
                 <X size={22} />
               </button>
-            </div>
-            <div className="flex flex-1 items-center justify-center">
-              <div className="w-full">
-                <ProductCard product={openedProduct} catalog={catalog} compact />
-              </div>
+              <ProductCard product={openedProduct} catalog={catalog} compact />
             </div>
           </div>
         </div>

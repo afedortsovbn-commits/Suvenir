@@ -22,13 +22,15 @@ export function ProductCard({ product, catalog, selectable, selected, onToggle, 
   const sizes = catalog.clothingSizes.filter((item) => product.clothingSizeIds?.includes(item.id));
   const materials = catalog.materials.filter((item) => product.materialIds?.includes(item.id));
   const brandingMethods = (catalog.brandingMethods ?? []).filter((item) => product.brandingMethodIds?.includes(item.id));
+  const productSpecs = [product.physicalSize, product.volume].filter(Boolean).join(" · ");
+  const brandingText = brandingMethods.map((item) => item.title).join(", ") || product.printType;
 
   return (
     <article
       className={clsx(
         "group relative flex min-h-[220px] flex-col overflow-hidden rounded-lg border border-white/80 p-4 shadow-soft transition",
         !compact && cardSizeGridClass[product.cardSize],
-        onOpen && "cursor-zoom-in",
+        onOpen && "cursor-pointer",
         selected && "ring-2 ring-brand-500"
       )}
       style={{ backgroundColor: background?.hex ?? "#e7f0df" }}
@@ -79,30 +81,43 @@ export function ProductCard({ product, catalog, selectable, selected, onToggle, 
         <h3 className="product-title pr-8 font-bold leading-tight text-brand-900">{product.title || "Новый товар"}</h3>
         <p className="line-clamp-soft mt-2 text-sm leading-5 text-[#315541]">{product.description || "Описание появится после заполнения карточки."}</p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {colors.map((color) => (
-            <span
-              key={color.id}
-              className="h-5 w-5 rounded-full border border-black/10 shadow-sm"
-              style={{ backgroundColor: color.hex }}
-              title={color.title}
-            />
-          ))}
-          {sizes.map((size) => (
-            <span key={size.id} className="rounded-full bg-white/70 px-2 py-1 text-[11px] font-semibold text-brand-900">
-              {size.title}
-            </span>
-          ))}
-          {[...materials.slice(0, 1), ...brandingMethods.slice(0, 1)].map((item) => (
-            <span key={item.id} className="rounded-full bg-white/55 px-2 py-1 text-[11px] text-[#315541]">
-              {item.title}
-            </span>
-          ))}
+        <div className="mt-4 grid gap-2">
+          {colors.length ? (
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/45 pb-2">
+              {colors.map((color) => (
+                <span
+                  key={color.id}
+                  className="h-5 w-5 rounded-full border border-black/10 shadow-sm"
+                  style={{ backgroundColor: color.hex }}
+                  title={color.title}
+                />
+              ))}
+            </div>
+          ) : null}
+          {sizes.length ? (
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/45 pb-2">
+              {sizes.map((size) => (
+                <span key={size.id} className="rounded-full bg-white/70 px-2 py-1 text-[11px] font-semibold text-brand-900">
+                  {size.title}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {materials.length ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {materials.map((item) => (
+                <span key={item.id} className="rounded-full bg-white/55 px-2 py-1 text-[11px] text-[#315541]">
+                  {item.title}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-4 flex items-end justify-between gap-3">
-          <div className="text-xs leading-5 text-[#315541]">
-            {[product.physicalSize, product.volume, brandingMethods.map((item) => item.title).join(", ") || product.printType].filter(Boolean).slice(0, 2).join(" · ")}
+          <div className="grid gap-1 text-xs leading-5 text-[#315541]">
+            {productSpecs ? <span>{productSpecs}</span> : null}
+            {brandingText ? <span>{brandingText}</span> : null}
           </div>
           <div className="rounded-full bg-white/80 px-3 py-1 text-sm font-bold text-brand-700">№ {product.sku || "—"}</div>
         </div>

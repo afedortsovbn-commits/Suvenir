@@ -79,6 +79,7 @@ export type CardBackgroundColor = {
   id: string;
   title: string;
   hex: string;
+  categoryId?: string;
 };
 
 export type CatalogData = {

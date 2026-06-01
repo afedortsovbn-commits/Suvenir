@@ -1,6 +1,6 @@
 {
-  "version": 177,
-  "updatedAt": "2026-06-01T10:36:49.360Z",
+  "version": 38,
+  "updatedAt": "2026-06-01T15:27:06.731Z",
   "categories": [
     {
       "id": "merch",
@@ -30,73 +30,10 @@
   ],
   "products": [
     {
-      "id": "pdf-1-02",
+      "id": "pdf-1-03",
       "sectionId": "merch",
       "order": 1,
       "sku": "01.01",
-      "title": "Бомбер",
-      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
-      "image": "/products/pdf-1-02.png",
-      "corporateColorIds": [
-        "green",
-        "white",
-        "cream",
-        "kraft"
-      ],
-      "clothingSizeIds": [
-        "l",
-        "xl"
-      ],
-      "printType": "silk-transfer, embroidery, dtf",
-      "brandingMethodIds": [
-        "silk-transfer",
-        "embroidery",
-        "dtf"
-      ],
-      "materialIds": [
-        "cotton",
-        "polyester",
-        "leather",
-        "polyurethane"
-      ],
-      "cardSize": "large-horizontal",
-      "backgroundColorId": "rose"
-    },
-    {
-      "id": "pdf-1-04",
-      "sectionId": "merch",
-      "order": 2,
-      "sku": "01.02",
-      "title": "Поло",
-      "description": "Текстовое описание",
-      "image": "/products/pdf-1-04.png",
-      "corporateColorIds": [
-        "green",
-        "white",
-        "6f1ece4c-f08d-4adf-a56d-c05668d509b0"
-      ],
-      "clothingSizeIds": [
-        "xl",
-        "l"
-      ],
-      "printType": "silkscreen, silk-transfer, dtf, embroidery",
-      "brandingMethodIds": [
-        "silk-transfer",
-        "silkscreen",
-        "dtf"
-      ],
-      "materialIds": [
-        "pongee",
-        "plastic"
-      ],
-      "cardSize": "large-vertical",
-      "backgroundColorId": "mint"
-    },
-    {
-      "id": "pdf-1-03",
-      "sectionId": "merch",
-      "order": 3,
-      "sku": "01.03",
       "title": "Бейсболка белая8",
       "description": "Лаконичная бейсболка с фирменным знаком.",
       "image": "/products/pdf-1-03.png",
@@ -114,6 +51,60 @@
         "cotton"
       ],
       "cardSize": "medium-square",
+      "backgroundColorId": "mint"
+    },
+    {
+      "id": "pdf-1-02",
+      "sectionId": "merch",
+      "order": 2,
+      "sku": "01.02",
+      "title": "Бомбер",
+      "description": "Шелкотрансфер, вышивка, DTF. Хлопок 70%, полиэстер 30%.",
+      "image": "/products/pdf-1-02.png",
+      "corporateColorIds": [
+        "green",
+        "white"
+      ],
+      "clothingSizeIds": [],
+      "printType": "silk-transfer, embroidery, dtf",
+      "brandingMethodIds": [
+        "silk-transfer",
+        "embroidery",
+        "dtf"
+      ],
+      "materialIds": [
+        "cotton",
+        "polyester"
+      ],
+      "cardSize": "large-vertical",
+      "backgroundColorId": "cream"
+    },
+    {
+      "id": "pdf-1-04",
+      "sectionId": "merch",
+      "order": 3,
+      "sku": "01.03",
+      "title": "Поло",
+      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
+      "image": "/products/pdf-1-04.png",
+      "corporateColorIds": [
+        "green",
+        "white"
+      ],
+      "clothingSizeIds": [
+        "xxl-5xl"
+      ],
+      "printType": "silkscreen, silk-transfer, dtf, embroidery",
+      "brandingMethodIds": [
+        "silkscreen",
+        "silk-transfer",
+        "dtf",
+        "embroidery"
+      ],
+      "materialIds": [
+        "cotton"
+      ],
+      "cardSize": "large-vertical",
       "backgroundColorId": "mint"
     },
     {
@@ -1202,34 +1193,10 @@
       "physicalSize": "7,5 x 7,5 x 18 см"
     },
     {
-      "id": "pdf-5-02",
+      "id": "pdf-5-01",
       "sectionId": "decor",
       "order": 1,
       "sku": "05.01",
-      "title": "Зажигалка плазменная",
-      "description": "УФ-печать. Материал: алюминий.",
-      "image": "/products/pdf-5-02.png",
-      "corporateColorIds": [
-        "green",
-        "white"
-      ],
-      "clothingSizeIds": [],
-      "printType": "uv-print",
-      "brandingMethodIds": [
-        "uv-print"
-      ],
-      "materialIds": [
-        "aluminum"
-      ],
-      "cardSize": "medium-horizontal",
-      "backgroundColorId": "blue-soft",
-      "physicalSize": "18,6 x 23 x 17 см"
-    },
-    {
-      "id": "pdf-5-01",
-      "sectionId": "decor",
-      "order": 2,
-      "sku": "05.02",
       "title": "Аромадиффузор",
       "description": "Тампопечать, цифровая печать. Материал: стекло, фибровые палочки.",
       "image": "/products/pdf-5-01.png",
@@ -1250,6 +1217,30 @@
       "cardSize": "medium-square",
       "backgroundColorId": "mint",
       "physicalSize": "7,1 x 5,1 см"
+    },
+    {
+      "id": "pdf-5-02",
+      "sectionId": "decor",
+      "order": 2,
+      "sku": "05.02",
+      "title": "Зажигалка плазменная",
+      "description": "УФ-печать. Материал: алюминий.",
+      "image": "/products/pdf-5-02.png",
+      "corporateColorIds": [
+        "green",
+        "white"
+      ],
+      "clothingSizeIds": [],
+      "printType": "uv-print",
+      "brandingMethodIds": [
+        "uv-print"
+      ],
+      "materialIds": [
+        "aluminum"
+      ],
+      "cardSize": "medium-horizontal",
+      "backgroundColorId": "blue-soft",
+      "physicalSize": "18,6 x 23 x 17 см"
     },
     {
       "id": "pdf-5-03",
@@ -1458,18 +1449,18 @@
     },
     {
       "id": "a58fe45c-2cfb-44f4-8016-f276df2c0194",
-      "title": "Тест 1",
-      "hex": "#55703e"
+      "title": "Новый элемент",
+      "hex": "#e7f0df"
     },
     {
       "id": "a1cd7492-eef2-49cd-8a33-b4b2bebd205b",
-      "title": "Тест 2",
-      "hex": "#101223"
+      "title": "Новый элемент",
+      "hex": "#e7f0df"
     },
     {
       "id": "6f1ece4c-f08d-4adf-a56d-c05668d509b0",
-      "title": "Тест 3",
-      "hex": "#c94208"
+      "title": "Новый элемент",
+      "hex": "#e7f0df"
     }
   ],
   "clothingSizes": [
@@ -1499,8 +1490,8 @@
       "order": 5
     },
     {
-      "id": "70ced736-3853-4934-94ab-c3c7adff4530",
-      "title": "Тест",
+      "id": "1c68d50e-b57e-4912-b78c-d62053cb8d11",
+      "title": "Новый элемент",
       "order": 6
     }
   ],
@@ -1772,32 +1763,32 @@
     {
       "id": "mint",
       "title": "Мятный",
-      "hex": "#e8f5ed"
+      "hex": "#e8f5ed",
+      "categoryId": "merch"
     },
     {
       "id": "sage",
       "title": "Шалфей",
-      "hex": "#edf6e8"
+      "hex": "#edf6e8",
+      "categoryId": "stationery"
     },
     {
       "id": "cream",
       "title": "Молочный",
-      "hex": "#f6efe2"
+      "hex": "#f6efe2",
+      "categoryId": "accessories"
     },
     {
       "id": "blue-soft",
       "title": "Светло-серый",
-      "hex": "#edf3f2"
+      "hex": "#edf3f2",
+      "categoryId": "coffee"
     },
     {
       "id": "rose",
       "title": "Тёплый белый",
-      "hex": "#f4ece6"
-    },
-    {
-      "id": "68290099-f8e4-4d80-856f-cde84379d495",
-      "title": "Тест 1",
-      "hex": "#c85346"
+      "hex": "#f4ece6",
+      "categoryId": "decor"
     }
   ]
 }

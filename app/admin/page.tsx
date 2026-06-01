@@ -26,7 +26,16 @@ import draftJson from "@/data/catalog.draft.json";
 import publishedJson from "@/data/catalog.published.json";
 import usersJson from "@/data/users.json";
 import { ProductCard } from "@/components/ProductCard";
-import { cardSizeLabels, createEmptyProduct, hasUnpublishedChanges, isCatalogAtLeastAsFresh, normalizeProductOrder, sortCatalog, validateCatalog } from "@/lib/catalog";
+import {
+  cardSizeLabels,
+  createEmptyProduct,
+  getDefaultBackgroundColorId,
+  hasUnpublishedChanges,
+  isCatalogAtLeastAsFresh,
+  normalizeProductOrder,
+  sortCatalog,
+  validateCatalog
+} from "@/lib/catalog";
 import { createUser, decryptGitHubToken, encryptGitHubToken, verifyPassword } from "@/lib/auth";
 import { commitJson, commitJsonFiles, createGitHubConfig, fetchRepositoryJsonResult, repositoryConfig } from "@/lib/github";
 import { publicAsset } from "@/lib/paths";
@@ -46,7 +55,7 @@ const initialDraft = sortCatalog(draftJson as CatalogData);
 const initialPublished = sortCatalog(publishedJson as CatalogData);
 const initialUsers = usersJson as User[];
 const tokenStorageKey = "suvenir.githubToken";
-const adminBuildVersion = "2026-05-28-stability";
+const adminBuildVersion = "2026-06-01-admin-polish";
 
 type AdminSection = "access" | "products" | "categories" | "corporateColors" | "clothingSizes" | "materials" | "brandingMethods" | "cardBackgroundColors" | "github";
 type DirectoryKind = Exclude<AdminSection, "access" | "products" | "github">;
@@ -54,11 +63,11 @@ type DirectoryKind = Exclude<AdminSection, "access" | "products" | "github">;
 const catalogSections: Array<{ id: AdminSection; label: string }> = [
   { id: "products", label: "Сувенирная продукция" },
   { id: "categories", label: "Разделы каталога" },
-  { id: "corporateColors", label: "Корпоративные цвета" },
+  { id: "cardBackgroundColors", label: "Фоны карточек" },
+  { id: "corporateColors", label: "Цвета продукции" },
   { id: "clothingSizes", label: "Размеры одежды" },
   { id: "materials", label: "Материалы" },
   { id: "brandingMethods", label: "Способы брендирования" },
-  { id: "cardBackgroundColors", label: "Фоны карточек" },
   { id: "github", label: "GitHub storage" }
 ];
 
@@ -78,6 +87,10 @@ export default function AdminPage() {
   useEffect(() => {
     setToken(localStorage.getItem(tokenStorageKey) ?? "");
   }, []);
+
+  useEffect(() => {
+    setProfileOpen(false);
+  }, [currentUser?.id]);
 
   useEffect(() => {
     Promise.all([
@@ -205,7 +218,7 @@ export default function AdminPage() {
       );
       setDraft(nextPublished);
       setPublished(nextPublished);
-      setToast("Каталог опубликован в GitHub. GitHub Pages обновится после сборки.");
+      setToast("Обновления опубликованы и применятся в течение 2 минут.");
     } catch (error) {
       setToast(error instanceof Error ? error.message : "Не удалось опубликовать каталог в GitHub.");
     } finally {
@@ -215,6 +228,12 @@ export default function AdminPage() {
 
   function openCatalog() {
     window.open(`${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/?v=${Date.now()}`, "_blank", "noopener,noreferrer");
+  }
+
+  function menuItemClass(active: boolean) {
+    return `flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${
+      active ? "bg-brand-700 text-white" : "text-[#42644d] hover:bg-brand-50"
+    }`;
   }
 
   if (loading) {
@@ -264,7 +283,7 @@ export default function AdminPage() {
                       setSection("access");
                       setProfileOpen(false);
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#42644d] hover:bg-brand-50"
+                    className={menuItemClass(section === "access")}
                   >
                     <Users size={17} />
                     Управление доступом
@@ -276,7 +295,7 @@ export default function AdminPage() {
                     setSection("github");
                     setProfileOpen(false);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#42644d] hover:bg-brand-50"
+                  className={menuItemClass(section === "github")}
                 >
                   <ExternalLink size={17} />
                   GitHub storage
@@ -284,9 +303,10 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => {
+                    setProfileOpen(false);
                     setCurrentUser(null);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#42644d] hover:bg-brand-50"
+                  className={menuItemClass(false)}
                 >
                   <LogOut size={17} />
                   Выйти
@@ -349,7 +369,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => setSection(item.id)}
                     className={`w-full rounded-lg px-4 py-2 text-left text-sm font-semibold ${
-                      section === item.id ? "bg-brand-50 text-brand-700" : "text-[#42644d] hover:bg-[#f7f8f3]"
+                      section === item.id ? "bg-brand-700 text-white" : "text-[#42644d] hover:bg-[#f7f8f3]"
                     }`}
                   >
                     {item.label}
@@ -535,7 +555,8 @@ function ProductsAdmin({ draft, onDraft, issues }: { draft: CatalogData; onDraft
   }
 
   function addProduct() {
-    const product = createEmptyProduct(activeCategory?.id ?? draft.categories[0]?.id ?? "", visibleProducts.length + 1, draft.cardBackgroundColors[0]?.id ?? "");
+    const sectionId = activeCategory?.id ?? draft.categories[0]?.id ?? "";
+    const product = createEmptyProduct(sectionId, visibleProducts.length + 1, getDefaultBackgroundColorId(draft, sectionId));
     setEditingProduct(product);
   }
 
@@ -575,14 +596,14 @@ function ProductsAdmin({ draft, onDraft, issues }: { draft: CatalogData; onDraft
         </button>
       </div>
 
-      <div className="mb-5 flex gap-2 overflow-x-auto border-b border-brand-100 pb-2">
+      <div className="mb-5 flex items-end gap-2 overflow-x-auto border-b border-brand-100">
         {draft.categories.map((category) => (
           <button
             key={category.id}
             type="button"
             onClick={() => setActiveCategoryId(category.id)}
-            className={`whitespace-nowrap rounded-t-lg px-4 py-2 text-sm font-bold ${
-              activeCategory?.id === category.id ? "bg-brand-700 text-white" : "bg-brand-50 text-brand-700 hover:bg-[#e8f4ea]"
+            className={`-mb-px whitespace-nowrap rounded-t-lg border px-4 py-2 text-sm font-bold ${
+              activeCategory?.id === category.id ? "border-brand-700 bg-brand-700 text-white" : "border-brand-100 bg-brand-50 text-brand-700 hover:bg-[#e8f4ea]"
             }`}
           >
             {category.title}
@@ -720,6 +741,13 @@ function SortableRow({ id, danger, children }: { id: string; danger?: boolean; c
 function ProductForm({ product, draft, onProduct, issues }: { product: Product; draft: CatalogData; onProduct: (product: Product) => void; issues: ReturnType<typeof validateCatalog> }) {
   const issueText = new Map(issues.map((issue) => [issue.field, issue.message]));
   const set = <K extends keyof Product>(field: K, value: Product[K]) => onProduct({ ...product, [field]: value });
+  const setSection = (sectionId: string) => {
+    onProduct({
+      ...product,
+      sectionId,
+      backgroundColorId: getDefaultBackgroundColorId(draft, sectionId)
+    });
+  };
 
   async function uploadImage(file?: File) {
     if (!file) return;
@@ -739,7 +767,7 @@ function ProductForm({ product, draft, onProduct, issues }: { product: Product; 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Field label="Раздел *" error={issueText.get("sectionId")}>
-        <select value={product.sectionId} onChange={(event) => set("sectionId", event.target.value)} className="input">
+        <select value={product.sectionId} onChange={(event) => setSection(event.target.value)} className="input">
           {draft.categories.map((category) => <option key={category.id} value={category.id}>{category.title}</option>)}
         </select>
       </Field>
@@ -780,7 +808,7 @@ function ProductForm({ product, draft, onProduct, issues }: { product: Product; 
       <Field label="Объём">
         <input value={product.volume ?? ""} onChange={(event) => set("volume", event.target.value)} className="input" />
       </Field>
-      <CheckboxGroup title="Корпоративные цвета" values={draft.corporateColors} selected={product.corporateColorIds ?? []} onSelected={(ids) => set("corporateColorIds", ids)} />
+      <CheckboxGroup title="Цвета продукции" values={draft.corporateColors} selected={product.corporateColorIds ?? []} onSelected={(ids) => set("corporateColorIds", ids)} />
       <CheckboxGroup title="Размер одежды" values={draft.clothingSizes} selected={product.clothingSizeIds ?? []} onSelected={(ids) => set("clothingSizeIds", ids)} />
       <CheckboxGroup title="Материалы" values={draft.materials} selected={product.materialIds ?? []} onSelected={(ids) => set("materialIds", ids)} />
       <CheckboxGroup title="Способ брендирования" values={draft.brandingMethods ?? []} selected={product.brandingMethodIds ?? []} onSelected={(ids) => set("brandingMethodIds", ids)} />
@@ -823,7 +851,7 @@ function DirectoryPanel({ kind, draft, onDraft }: { kind: DirectoryKind; draft: 
   const sensors = useSensors(useSensor(PointerSensor));
   const labels: Record<DirectoryKind, string> = {
     categories: "Разделы каталога",
-    corporateColors: "Корпоративные цвета",
+    corporateColors: "Цвета продукции",
     clothingSizes: "Размеры одежды",
     materials: "Материалы",
     brandingMethods: "Способы брендирования",
@@ -833,7 +861,12 @@ function DirectoryPanel({ kind, draft, onDraft }: { kind: DirectoryKind; draft: 
 
   function addItem() {
     const base = { id: crypto.randomUUID(), title: "Новый элемент" };
-    const nextItem = kind === "corporateColors" || kind === "cardBackgroundColors" ? { ...base, hex: "#e7f0df" } : { ...base, order: items.length + 1 };
+    const nextItem =
+      kind === "cardBackgroundColors"
+        ? { ...base, hex: "#e7f0df", categoryId: draft.categories[0]?.id ?? "" }
+        : kind === "corporateColors"
+          ? { ...base, hex: "#e7f0df" }
+          : { ...base, order: items.length + 1 };
     onDraft({ ...draft, [kind]: [...items, nextItem] });
   }
 
@@ -867,6 +900,20 @@ function DirectoryPanel({ kind, draft, onDraft }: { kind: DirectoryKind; draft: 
               <SortableRow key={item.id} id={item.id}>
                 <input value={item.title} onChange={(event) => updateItem(item.id, { title: event.target.value })} className="min-w-0 flex-1 rounded-lg border border-brand-100 px-3 py-2 text-sm" />
                 {"hex" in item ? <input type="color" value={item.hex} onChange={(event) => updateItem(item.id, { hex: event.target.value })} className="h-9 w-11" /> : null}
+                {kind === "cardBackgroundColors" ? (
+                  <select
+                    value={"categoryId" in item ? item.categoryId ?? "" : ""}
+                    onChange={(event) => updateItem(item.id, { categoryId: event.target.value })}
+                    className="min-w-[180px] rounded-lg border border-brand-100 px-3 py-2 text-sm"
+                  >
+                    <option value="">Без категории</option>
+                    {draft.categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.title}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
                 <button type="button" onClick={() => deleteItem(item.id)} className="rounded-full p-2 text-red-700 hover:bg-red-50"><Trash2 size={16} /></button>
               </SortableRow>
             ))}

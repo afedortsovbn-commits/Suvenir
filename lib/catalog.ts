@@ -64,6 +64,10 @@ export function formatProductSku(categoryIndex: number, productIndex: number) {
   return `${String(categoryIndex + 1).padStart(2, "0")}.${String(productIndex + 1).padStart(2, "0")}`;
 }
 
+export function getDefaultBackgroundColorId(data: CatalogData, sectionId: string) {
+  return data.cardBackgroundColors.find((color) => color.categoryId === sectionId)?.id ?? data.cardBackgroundColors[0]?.id ?? "";
+}
+
 export function normalizeProductOrder(data: CatalogData): CatalogData {
   const categories = [...data.categories].sort((a, b) => a.order - b.order);
   const productsByCategory = new Map<string, Product[]>();
