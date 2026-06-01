@@ -127,6 +127,7 @@ export default function AdminPage() {
 
   const validationIssues = useMemo(() => validateCatalog(draft), [draft]);
   const unpublished = hasUnpublishedChanges(draft, published);
+  const activeCatalogSection = catalogSections.find((item) => item.id === section);
 
   function persistDraft(nextDraft: CatalogData) {
     const stamped = sortCatalog(normalizeProductOrder({ ...nextDraft, updatedAt: new Date().toISOString(), version: nextDraft.version + 1 }));
@@ -234,6 +235,7 @@ export default function AdminPage() {
   function openAdminSection(nextSection: AdminSection) {
     setSection(nextSection);
     setProfileOpen(false);
+    setCatalogMenuOpen(false);
   }
 
   function menuItemClass(active: boolean) {
@@ -355,24 +357,26 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={() => {
-                setSection("products");
                 setCatalogMenuOpen((value) => !value);
               }}
-              className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-semibold ${section === "products" ? "bg-brand-700 text-white" : "hover:bg-brand-50"}`}
+              className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left font-semibold ${
+                activeCatalogSection ? "bg-brand-700 text-white" : "hover:bg-brand-50"
+              }`}
             >
               <LayoutGrid size={19} />
-              <span className="min-w-0 flex-1">Сувенирная продукция</span>
+              <span className="min-w-0 flex-1 lg:hidden">{activeCatalogSection?.label ?? "Сувенирная продукция"}</span>
+              <span className="hidden min-w-0 flex-1 lg:inline">Сувенирная продукция</span>
               <ChevronDown size={17} className={`${catalogMenuOpen ? "rotate-180" : ""} transition lg:hidden`} />
             </button>
 
             <div className={`${catalogMenuOpen ? "block" : "hidden"} my-4 border-y border-brand-100 py-4 lg:block`}>
               <div className="space-y-1">
-                {catalogSections.filter((item) => item.id !== "products" && item.id !== "github").map((item) => (
+                {catalogSections.filter((item) => item.id !== "github").map((item) => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => openAdminSection(item.id)}
-                    className={`w-full rounded-lg px-4 py-2 text-left text-sm font-semibold ${
+                    className={`w-full rounded-lg px-4 py-2 text-left text-sm font-semibold ${item.id === "products" ? "lg:hidden" : ""} ${
                       section === item.id ? "bg-brand-700 text-white" : "text-[#42644d] hover:bg-[#f7f8f3]"
                     }`}
                   >
