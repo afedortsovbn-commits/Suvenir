@@ -1,6 +1,6 @@
 {
-  "version": 42,
-  "updatedAt": "2026-06-01T06:58:13.561Z",
+  "version": 106,
+  "updatedAt": "2026-06-01T07:04:16.214Z",
   "categories": [
     {
       "id": "merch",
@@ -1456,18 +1456,18 @@
     },
     {
       "id": "a58fe45c-2cfb-44f4-8016-f276df2c0194",
-      "title": "Новый элемент",
-      "hex": "#e7f0df"
+      "title": "Тест 1",
+      "hex": "#55703e"
     },
     {
       "id": "a1cd7492-eef2-49cd-8a33-b4b2bebd205b",
-      "title": "Новый элемент",
-      "hex": "#e7f0df"
+      "title": "Тест 2",
+      "hex": "#101223"
     },
     {
       "id": "6f1ece4c-f08d-4adf-a56d-c05668d509b0",
-      "title": "Новый элемент",
-      "hex": "#e7f0df"
+      "title": "Тест 3",
+      "hex": "#c94208"
     }
   ],
   "clothingSizes": [
