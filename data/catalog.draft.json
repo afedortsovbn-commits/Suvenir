@@ -1,6 +1,6 @@
 {
-  "version": 171,
-  "updatedAt": "2026-06-01T07:06:29.297Z",
+  "version": 172,
+  "updatedAt": "2026-06-01T07:23:59.651Z",
   "categories": [
     {
       "id": "merch",
@@ -35,24 +35,26 @@
       "order": 1,
       "sku": "01.01",
       "title": "Поло",
-      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
+      "description": "Текстовое описание",
       "image": "/products/pdf-1-04.png",
       "corporateColorIds": [
         "green",
-        "white"
+        "white",
+        "6f1ece4c-f08d-4adf-a56d-c05668d509b0"
       ],
       "clothingSizeIds": [
-        "xxl-5xl"
+        "xl",
+        "l"
       ],
       "printType": "silkscreen, silk-transfer, dtf, embroidery",
       "brandingMethodIds": [
-        "silkscreen",
         "silk-transfer",
-        "dtf",
-        "embroidery"
+        "silkscreen",
+        "dtf"
       ],
       "materialIds": [
-        "cotton"
+        "pongee",
+        "plastic"
       ],
       "cardSize": "large-vertical",
       "backgroundColorId": "mint"
