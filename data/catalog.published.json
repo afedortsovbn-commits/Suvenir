@@ -1,6 +1,6 @@
 {
-  "version": 42,
-  "updatedAt": "2026-06-01T06:58:13.561Z",
+  "version": 173,
+  "updatedAt": "2026-06-01T07:24:05.879Z",
   "categories": [
     {
       "id": "merch",
@@ -35,24 +35,26 @@
       "order": 1,
       "sku": "01.01",
       "title": "Поло",
-      "description": "Шелкография, шелкотрансфер, DTF, вышивка. Материал: хлопок.",
+      "description": "Текстовое описание",
       "image": "/products/pdf-1-04.png",
       "corporateColorIds": [
         "green",
-        "white"
+        "white",
+        "6f1ece4c-f08d-4adf-a56d-c05668d509b0"
       ],
       "clothingSizeIds": [
-        "xxl-5xl"
+        "xl",
+        "l"
       ],
       "printType": "silkscreen, silk-transfer, dtf, embroidery",
       "brandingMethodIds": [
-        "silkscreen",
         "silk-transfer",
-        "dtf",
-        "embroidery"
+        "silkscreen",
+        "dtf"
       ],
       "materialIds": [
-        "cotton"
+        "pongee",
+        "plastic"
       ],
       "cardSize": "large-vertical",
       "backgroundColorId": "mint"
@@ -1456,18 +1458,18 @@
     },
     {
       "id": "a58fe45c-2cfb-44f4-8016-f276df2c0194",
-      "title": "Новый элемент",
-      "hex": "#e7f0df"
+      "title": "Тест 1",
+      "hex": "#55703e"
     },
     {
       "id": "a1cd7492-eef2-49cd-8a33-b4b2bebd205b",
-      "title": "Новый элемент",
-      "hex": "#e7f0df"
+      "title": "Тест 2",
+      "hex": "#101223"
     },
     {
       "id": "6f1ece4c-f08d-4adf-a56d-c05668d509b0",
-      "title": "Новый элемент",
-      "hex": "#e7f0df"
+      "title": "Тест 3",
+      "hex": "#c94208"
     }
   ],
   "clothingSizes": [
@@ -1497,8 +1499,8 @@
       "order": 5
     },
     {
-      "id": "1c68d50e-b57e-4912-b78c-d62053cb8d11",
-      "title": "Новый элемент",
+      "id": "70ced736-3853-4934-94ab-c3c7adff4530",
+      "title": "Тест",
       "order": 6
     }
   ],
@@ -1791,6 +1793,11 @@
       "id": "rose",
       "title": "Тёплый белый",
       "hex": "#f4ece6"
+    },
+    {
+      "id": "68290099-f8e4-4d80-856f-cde84379d495",
+      "title": "Тест 1",
+      "hex": "#c85346"
     }
   ]
 }
