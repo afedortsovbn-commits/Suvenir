@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { ArrowUp, X } from "lucide-react";
+import Link from "next/link";
+import { ArrowUp, Shield, X } from "lucide-react";
 import publishedCatalog from "@/data/catalog.published.json";
 import { ProductCard } from "@/components/ProductCard";
 import { PdfExport } from "@/components/PdfExport";
@@ -18,6 +19,7 @@ export default function CatalogPage() {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(() => fallbackCatalog.categories.map((category) => category.id));
   const [openedProductId, setOpenedProductId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     fetchRepositoryJson<CatalogData>("data/catalog.published.json", fallbackCatalog).then((data) => {
@@ -30,6 +32,16 @@ export default function CatalogPage() {
         return current.length === fallbackCatalog.categories.length || !selected.length ? categoryIds : selected;
       });
     });
+  }, []);
+
+  useEffect(() => {
+    function updateScrollTopVisibility() {
+      setShowScrollTop(window.scrollY > 240);
+    }
+
+    updateScrollTopVisibility();
+    window.addEventListener("scroll", updateScrollTopVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrollTopVisibility);
   }, []);
 
   const visibleProducts = useMemo(() => {
@@ -54,22 +66,39 @@ export default function CatalogPage() {
       <section className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-6 rounded-lg bg-white/60 p-5 shadow-soft lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <Image
-              src={publicAsset("/brand/logo.png")}
-              alt="Белоруснефть"
-              width={727}
-              height={166}
-              className="mb-5 h-auto w-full max-w-[260px] object-contain"
-              priority
-            />
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <Image
+                src={publicAsset("/brand/logo.png")}
+                alt="Белоруснефть"
+                width={727}
+                height={166}
+                className="h-auto w-full max-w-[260px] object-contain"
+                priority
+              />
+              <Link
+                href="/admin/"
+                className="hidden shrink-0 items-center justify-center gap-2 rounded-full border border-brand-300 bg-white px-4 py-3 text-sm font-semibold text-brand-700 shadow-soft transition hover:border-brand-700 hover:bg-brand-50 lg:inline-flex"
+              >
+                <Shield size={18} />
+                Админка
+              </Link>
+            </div>
             <h1 className="text-2xl font-bold leading-tight text-brand-900 sm:text-5xl">Каталог сувенирной продукции</h1>
           </div>
-          <div className="flex items-center lg:justify-end">
+          <div className="flex items-center justify-between gap-3 lg:justify-end">
             <PdfExport
               catalog={catalog}
               products={visibleProducts}
               onEmpty={() => setNotice("Выберите хотя бы одну категорию, чтобы сформировать PDF.")}
             />
+            <Link
+              href="/admin/"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brand-300 bg-white text-brand-700 shadow-soft transition hover:border-brand-700 hover:bg-brand-50 lg:hidden"
+              aria-label="Открыть админку"
+              title="Открыть админку"
+            >
+              <Shield size={20} />
+            </Link>
           </div>
         </header>
 
@@ -110,14 +139,16 @@ export default function CatalogPage() {
         </section>
       </section>
 
-      <button
-        type="button"
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="fixed bottom-5 right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-brand-700 text-white shadow-soft transition hover:bg-brand-900"
-        aria-label="Вернуться в начало"
-      >
-        <ArrowUp size={22} />
-      </button>
+      {showScrollTop ? (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-5 right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-brand-700 text-white shadow-soft transition hover:bg-brand-900"
+          aria-label="Вернуться в начало"
+        >
+          <ArrowUp size={22} />
+        </button>
+      ) : null}
 
       {openedProduct ? (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/30 p-4 backdrop-blur-sm sm:p-6">
